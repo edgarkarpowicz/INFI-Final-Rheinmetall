@@ -35,9 +35,9 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS: Array<{ id: MainViewId; label: string; icon: typeof LayoutDashboard }> = [
+  { id: 'divisions', label: 'Divisiones (3)', icon: Factory },
   { id: 'overview', label: 'Tablero Ejecutivo', icon: LayoutDashboard },
   { id: 'sectors', label: 'Sectores (5)', icon: Activity },
-  { id: 'divisions', label: 'Divisiones (3)', icon: Factory },
   { id: 'methodology', label: 'Metodología & Datos', icon: BookOpen },
 ];
 
@@ -127,9 +127,6 @@ export function Sidebar({
                 <div className="font-display text-sm font-bold tracking-wider text-[var(--sidebar-text)]">
                   RHEINMETALL
                 </div>
-                <div className="font-mono-num text-[9px] font-medium text-[var(--sidebar-muted)]">
-                  KPI · FY 2026
-                </div>
               </div>
             </div>
 
@@ -173,103 +170,104 @@ export function Sidebar({
                 const Icon = item.icon;
                 const active = activeView === item.id;
                 return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleNav(item.id)}
-                    title={item.label}
-                    aria-label={item.label}
-                    className={`relative cursor-pointer flex w-full items-center rounded-md text-xs font-medium transition hover:bg-[var(--sidebar-hover)] ${
-                      collapsed
-                        ? 'justify-between px-2.5 py-2 lg:justify-center lg:px-0 lg:py-2.5'
-                        : 'justify-between px-2.5 py-1.5'
-                    }`}
-                    style={
-                      active
-                        ? {
-                            backgroundColor: 'var(--sidebar-active-bg)',
-                            color: 'var(--sidebar-active-text)',
-                          }
-                        : { color: 'var(--sidebar-text)' }
-                    }
-                  >
-                    <span className="flex items-center gap-2.5">
-                      <Icon className="h-4 w-4 shrink-0 opacity-90" />
-                      <span className={collapsed ? 'lg:hidden' : ''}>{item.label}</span>
-                    </span>
-                    {item.id === 'overview' && alertCount > 0 && (
-                      <>
-                        <span
-                          className={`rounded-full px-1.5 py-0.5 font-mono-num text-[9px] font-semibold ${
-                            collapsed ? 'lg:hidden' : ''
-                          }`}
-                          style={
-                            active
-                              ? { backgroundColor: 'rgba(255,255,255,0.2)', color: 'inherit' }
-                              : {
-                                  backgroundColor: 'var(--status-yellow-bg)',
-                                  color: 'var(--status-yellow-text)',
-                                }
-                          }
-                        >
-                          {alertCount}
-                        </span>
-                        {collapsed && (
-                          <span
-                            className="hidden h-1.5 w-1.5 rounded-full lg:block lg:absolute lg:top-1.5 lg:right-2"
-                            style={{ backgroundColor: 'var(--status-yellow)' }}
-                          />
-                        )}
-                      </>
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
-
-            {/* Quick Sector Jump when expanded and viewing Sectors */}
-            {activeView === 'sectors' && !collapsed && (
-              <div
-                className="mt-1.5 ml-3 space-y-0.5 border-l pl-2.5"
-                style={{ borderColor: 'var(--sidebar-border)' }}
-              >
-                {SECTORS.map((s) => {
-                  const isFocus = activePersonaObj.focusSectors.includes(s.id);
-                  const active = activeSector === s.id;
-                  return (
+                  <div key={item.id}>
                     <button
-                      key={s.id}
                       type="button"
-                      onClick={() => {
-                        onSelectSector(s.id);
-                        onCloseMobile();
-                      }}
-                      className="cursor-pointer flex w-full items-center justify-between rounded px-2 py-1 text-left text-[11px] transition hover:bg-[var(--sidebar-hover)]"
+                      onClick={() => handleNav(item.id)}
+                      title={item.label}
+                      aria-label={item.label}
+                      className={`relative cursor-pointer flex w-full items-center rounded-md text-xs font-medium transition hover:bg-[var(--sidebar-hover)] ${
+                        collapsed
+                          ? 'justify-between px-2.5 py-2 lg:justify-center lg:px-0 lg:py-2.5'
+                          : 'justify-between px-2.5 py-1.5'
+                      }`}
                       style={
                         active
                           ? {
-                              backgroundColor: 'var(--sidebar-card-active-bg)',
-                              color: 'var(--accent-blue)',
-                              fontWeight: 600,
+                              backgroundColor: 'var(--sidebar-active-bg)',
+                              color: 'var(--sidebar-active-text)',
                             }
-                          : { color: 'var(--sidebar-muted)' }
+                          : { color: 'var(--sidebar-text)' }
                       }
                     >
-                      <span>
-                        {s.numero}. {s.nombre}
+                      <span className="flex items-center gap-2.5">
+                        <Icon className="h-4 w-4 shrink-0 opacity-90" />
+                        <span className={collapsed ? 'lg:hidden' : ''}>{item.label}</span>
                       </span>
-                      {persona !== 'coo' && isFocus && (
-                        <span
-                          className="h-1.5 w-1.5 rounded-full"
-                          style={{ backgroundColor: 'var(--accent-blue)' }}
-                          title="En foco de tu perfil"
-                        />
+                      {item.id === 'overview' && alertCount > 0 && (
+                        <>
+                          <span
+                            className={`rounded-full px-1.5 py-0.5 font-mono-num text-[9px] font-semibold ${
+                              collapsed ? 'lg:hidden' : ''
+                            }`}
+                            style={
+                              active
+                                ? { backgroundColor: 'rgba(255,255,255,0.2)', color: 'inherit' }
+                                : {
+                                    backgroundColor: 'var(--status-yellow-bg)',
+                                    color: 'var(--status-yellow-text)',
+                                  }
+                            }
+                          >
+                            {alertCount}
+                          </span>
+                          {collapsed && (
+                            <span
+                              className="hidden h-1.5 w-1.5 rounded-full lg:block lg:absolute lg:top-1.5 lg:right-2"
+                              style={{ backgroundColor: 'var(--status-yellow)' }}
+                            />
+                          )}
+                        </>
                       )}
                     </button>
-                  );
-                })}
-              </div>
-            )}
+
+                    {/* Quick Sector Jump directly under Sectores when active and expanded */}
+                    {item.id === 'sectors' && activeView === 'sectors' && !collapsed && (
+                      <div
+                        className="mt-1 ml-3 space-y-0.5 border-l pl-2.5"
+                        style={{ borderColor: 'var(--sidebar-border)' }}
+                      >
+                        {SECTORS.map((s) => {
+                          const isFocus = activePersonaObj.focusSectors.includes(s.id);
+                          const sectorActive = activeSector === s.id;
+                          return (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => {
+                                onSelectSector(s.id);
+                                onCloseMobile();
+                              }}
+                              className="cursor-pointer flex w-full items-center justify-between rounded px-2 py-1 text-left text-[11px] transition hover:bg-[var(--sidebar-hover)]"
+                              style={
+                                sectorActive
+                                  ? {
+                                      backgroundColor: 'var(--sidebar-card-active-bg)',
+                                      color: 'var(--accent-blue)',
+                                      fontWeight: 600,
+                                    }
+                                  : { color: 'var(--sidebar-muted)' }
+                              }
+                            >
+                              <span>
+                                {s.numero}. {s.nombre}
+                              </span>
+                              {persona !== 'coo' && isFocus && (
+                                <span
+                                  className="h-1.5 w-1.5 rounded-full"
+                                  style={{ backgroundColor: 'var(--accent-blue)' }}
+                                  title="En foco de tu perfil"
+                                />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </nav>
           </div>
 
           {/* Interactive Stakeholder Profiles (SRS §5) — Always Clickable Even Collapsed */}

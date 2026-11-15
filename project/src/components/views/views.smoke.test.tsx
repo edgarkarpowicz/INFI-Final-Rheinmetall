@@ -103,6 +103,12 @@ describe('Dashboard UI Views & Layout — Render Smoke Tests', () => {
     );
     expect(divHtml).toContain('División Defensa');
     expect((divHtml.match(/División Defensa/g) ?? []).length).toBe(1);
+    expect(divHtml).toContain('Filtrar tablero: Grupo Consolidado');
+    expect(divHtml).toContain('8.376,0M');
+    expect(divHtml).toContain('19.100,0M');
+    expect(divHtml).toContain('2,28x');
+    expect(divHtml).toContain('Estado KPIs (10)');
+    expect(divHtml).not.toContain('3Ó');
     expect(divHtml).toContain('Weapon &amp; Ammunition');
     expect(divHtml).toContain('Vehicle Systems');
     expect(divHtml).toContain('Electronic Solutions');
@@ -110,7 +116,7 @@ describe('Dashboard UI Views & Layout — Render Smoke Tests', () => {
 
     const sidebarHtml = renderToStaticMarkup(
       <Sidebar
-        activeView="overview"
+        activeView="divisions"
         onChangeView={() => {}}
         activeSector="ventas"
         onSelectSector={() => {}}
@@ -127,6 +133,36 @@ describe('Dashboard UI Views & Layout — Render Smoke Tests', () => {
     expect(sidebarHtml).toContain('Divisiones (3)');
     expect(sidebarHtml).toContain('Perfil Decisor (SRS §5)');
     expect(sidebarHtml).toContain('Modo Sala Control (Oscuro)');
+
+    const idxDiv = sidebarHtml.indexOf('Divisiones (3)');
+    const idxOver = sidebarHtml.indexOf('Tablero Ejecutivo');
+    const idxSec = sidebarHtml.indexOf('Sectores (5)');
+    const idxMeth = sidebarHtml.indexOf('Metodología &amp; Datos');
+    expect(idxDiv).toBeGreaterThan(-1);
+    expect(idxDiv).toBeLessThan(idxOver);
+    expect(idxOver).toBeLessThan(idxSec);
+    expect(idxSec).toBeLessThan(idxMeth);
+
+    const sectorsSidebarHtml = renderToStaticMarkup(
+      <Sidebar
+        activeView="sectors"
+        onChangeView={() => {}}
+        activeSector="calidad"
+        onSelectSector={() => {}}
+        persona="coo"
+        onPersonaChange={() => {}}
+        theme="light"
+        onToggleTheme={() => {}}
+        alertCount={6}
+        mobileOpen={false}
+        onCloseMobile={() => {}}
+      />
+    );
+    const sSec = sectorsSidebarHtml.indexOf('Sectores (5)');
+    const sItem = sectorsSidebarHtml.indexOf('1. Ventas');
+    const sMeth = sectorsSidebarHtml.indexOf('Metodología &amp; Datos');
+    expect(sSec).toBeLessThan(sItem);
+    expect(sItem).toBeLessThan(sMeth);
 
     const collapsedSidebarHtml = renderToStaticMarkup(
       <Sidebar
@@ -165,7 +201,24 @@ describe('Dashboard UI Views & Layout — Render Smoke Tests', () => {
     );
     expect(topBarHtml).toContain('Tablero Ejecutivo Consolidado');
     expect(topBarHtml).toContain('VP Compras');
+    expect(topBarHtml).toContain('Seleccionar división operativa');
     expect(topBarHtml).toContain('Vehicle Systems (Kassel / Telford)');
+
+    const topBarDivisionsHtml = renderToStaticMarkup(
+      <TopBar
+        activeView="divisions"
+        persona="coo"
+        division="Grupo Consolidado"
+        onDivisionChange={() => {}}
+        period="9M-2026"
+        onPeriodChange={() => {}}
+        dataOriginLabel="100% Anclado Reporte 9M Real"
+        isDivisionalQuarterlyOnly={false}
+        onOpenMobileMenu={() => {}}
+      />
+    );
+    expect(topBarDivisionsHtml).toContain('Divisiones y Plantas Operativas');
+    expect(topBarDivisionsHtml).not.toContain('Seleccionar división operativa');
   });
 
   it('renders SectorDeepDive cleanly across all 5 strategic sectors with persona focus tags', () => {

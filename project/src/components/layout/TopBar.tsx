@@ -50,6 +50,7 @@ export function TopBar({
 }: TopBarProps) {
   const activePersona = PERSONAS.find((p) => p.id === persona) ?? PERSONAS[0];
   const isMonthSelected = period.startsWith('2026-');
+  const monthDisabled = isDivisionalQuarterlyOnly || activeView === 'divisions';
 
   return (
     <header
@@ -94,20 +95,22 @@ export function TopBar({
           </div>
         </div>
 
-        {/* Right: Clean Division Select + Period Segmented Controls */}
+        {/* Right: Clean Division Select (hidden on Divisiones) + Period Segmented Controls */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <select
-            aria-label="Seleccionar división operativa"
-            value={division}
-            onChange={(e) => onDivisionChange(e.target.value as DivisionFilter)}
-            className="cursor-pointer rounded-md border border-[var(--border-color)] bg-[var(--bg-elevated)] px-2 py-1 text-[11px] font-medium text-[var(--text-primary)] outline-none transition hover:border-[var(--border-strong)]"
-          >
-            {DIVISIONS.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.label}
-              </option>
-            ))}
-          </select>
+          {activeView !== 'divisions' && (
+            <select
+              aria-label="Seleccionar división operativa"
+              value={division}
+              onChange={(e) => onDivisionChange(e.target.value as DivisionFilter)}
+              className="cursor-pointer rounded-md border border-[var(--border-color)] bg-[var(--bg-elevated)] px-2 py-1 text-[11px] font-medium text-[var(--text-primary)] outline-none transition hover:border-[var(--border-strong)]"
+            >
+              {DIVISIONS.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+          )}
 
           <div className="flex items-center rounded-md border border-[var(--border-color)] bg-[var(--bg-elevated)] p-0.5">
             {QUICK_PERIODS.map((p) => {
@@ -121,10 +124,10 @@ export function TopBar({
                   style={
                     active
                       ? {
-                          backgroundColor: 'var(--accent-blue-soft)',
-                          color: 'var(--accent-blue)',
-                          fontWeight: 600,
-                        }
+                        backgroundColor: 'var(--accent-blue-soft)',
+                        color: 'var(--accent-blue)',
+                        fontWeight: 600,
+                      }
                       : { color: 'var(--text-secondary)' }
                   }
                 >
@@ -138,24 +141,24 @@ export function TopBar({
             <Calendar className="h-3.5 w-3.5 text-[var(--text-muted)]" />
             <select
               aria-label="Seleccionar mes específico"
-              disabled={isDivisionalQuarterlyOnly}
-              value={isMonthSelected ? period : ''}
+              disabled={monthDisabled}
+              value={isMonthSelected && !monthDisabled ? period : ''}
               onChange={(e) => {
                 if (e.target.value) onPeriodChange(e.target.value as PeriodFilter);
               }}
               className={`rounded-md border border-[var(--border-color)] bg-[var(--bg-elevated)] px-2 py-1 text-[11px] font-medium text-[var(--text-primary)] outline-none ${
-                isDivisionalQuarterlyOnly
+                monthDisabled
                   ? 'cursor-not-allowed opacity-50'
                   : 'cursor-pointer hover:border-[#007EC1]'
               }`}
               title={
-                isDivisionalQuarterlyOnly
-                  ? 'Las divisiones tienen granularidad trimestral (Q1–Q4)'
+                monthDisabled
+                  ? 'Las vistas divisionales usan períodos trimestrales (Q1–Q4) o acumulados (9M / FY)'
                   : 'Filtrar un mes puntual'
               }
             >
               <option value="">
-                {isDivisionalQuarterlyOnly ? 'Mes (Solo Consolidado)' : 'Mes...'}
+                {monthDisabled ? 'Mes (Solo Consolidado)' : 'Mes...'}
               </option>
               {DATASET.serie_mensual_2026.map((m) => (
                 <option key={m.id} value={m.id}>

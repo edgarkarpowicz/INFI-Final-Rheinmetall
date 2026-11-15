@@ -12,7 +12,7 @@ import {
 } from 'recharts';
 import { DATASET } from '../../data/kpiCatalogEnriched';
 import { formatCurrencyMeur, formatNumberEs } from '../../utils/formatters';
-import { evaluateStatus, getPeriodSnapshot } from '../../utils/kpiEngine';
+import { evaluateStatus, getPeriodSnapshot, normalizePeriodForDivision } from '../../utils/kpiEngine';
 import type { DivisionFilter, DivisionalRecord, KpiCode, PeriodFilter } from '../../types/kpi';
 import { getStatusVars } from '../common/StatusBadge';
 
@@ -33,25 +33,29 @@ const METRICS: Array<{
   kpiCode?: KpiCode;
   unit: string;
 }> = [
-  { key: 'ventas_meur', label: 'Ventas Facturadas [M€]', unit: 'M€' },
-  { key: 'pedidos_meur', label: 'Nuevos Pedidos [M€]', unit: 'M€' },
-  { key: 'btb', label: 'KPI-1.1 Book-to-Bill (x)', kpiCode: 'KPI-1.1', unit: 'x' },
-  { key: 'margen_pct', label: 'KPI-1.2 Margen Operativo (%)', kpiCode: 'KPI-1.2', unit: '%' },
-  { key: 'oee_pct', label: 'KPI-2.1 OEE (%)', kpiCode: 'KPI-2.1', unit: '%' },
-  { key: 'mps_pct', label: 'KPI-2.2 Cumplimiento MPS (%)', kpiCode: 'KPI-2.2', unit: '%' },
-  { key: 'fpy_pct', label: 'KPI-3.1 First-Pass Yield (%)', kpiCode: 'KPI-3.1', unit: '%' },
-  { key: 'rechazo_lotes_pct', label: 'KPI-3.2 Rechazo Lotes GQAR (%)', kpiCode: 'KPI-3.2', unit: '%' },
-  { key: 'dos_dias', label: 'KPI-4.1 Días de Inventario DOS (d)', kpiCode: 'KPI-4.1', unit: ' d' },
-  { key: 'otif_pct', label: 'KPI-4.2 Supplier OTIF (%)', kpiCode: 'KPI-4.2', unit: '%' },
-  { key: 'cierre_ehs_pct', label: 'KPI-5.1 Cierre Proactivo EHS (%)', kpiCode: 'KPI-5.1', unit: '%' },
-  { key: 'ltifr', label: 'KPI-5.2 LTIFR (Acc./10⁶ h)', kpiCode: 'KPI-5.2', unit: '' },
-];
+    { key: 'ventas_meur', label: 'Ventas Facturadas [M€]', unit: 'M€' },
+    { key: 'pedidos_meur', label: 'Nuevos Pedidos [M€]', unit: 'M€' },
+    { key: 'btb', label: 'KPI-1.1 Book-to-Bill (x)', kpiCode: 'KPI-1.1', unit: 'x' },
+    { key: 'margen_pct', label: 'KPI-1.2 Margen Operativo (%)', kpiCode: 'KPI-1.2', unit: '%' },
+    { key: 'oee_pct', label: 'KPI-2.1 OEE (%)', kpiCode: 'KPI-2.1', unit: '%' },
+    { key: 'mps_pct', label: 'KPI-2.2 Cumplimiento MPS (%)', kpiCode: 'KPI-2.2', unit: '%' },
+    { key: 'fpy_pct', label: 'KPI-3.1 First-Pass Yield (%)', kpiCode: 'KPI-3.1', unit: '%' },
+    { key: 'rechazo_lotes_pct', label: 'KPI-3.2 Rechazo Lotes GQAR (%)', kpiCode: 'KPI-3.2', unit: '%' },
+    { key: 'dos_dias', label: 'KPI-4.1 Días de Inventario DOS (d)', kpiCode: 'KPI-4.1', unit: ' d' },
+    { key: 'otif_pct', label: 'KPI-4.2 Supplier OTIF (%)', kpiCode: 'KPI-4.2', unit: '%' },
+    { key: 'cierre_ehs_pct', label: 'KPI-5.1 Cierre Proactivo EHS (%)', kpiCode: 'KPI-5.1', unit: '%' },
+    { key: 'ltifr', label: 'KPI-5.2 LTIFR (Acc./10⁶ h)', kpiCode: 'KPI-5.2', unit: '' },
+  ];
 
 export function DivisionalView({ period, onSelectDivision }: DivisionalViewProps) {
   const [selectedMetricKey, setSelectedMetricKey] = useState<keyof DivisionalRecord>('margen_pct');
   const activeMetric = METRICS.find((m) => m.key === selectedMetricKey) ?? METRICS[3];
 
-  const divSnapshots = DEFENSE_DIVISIONS.map((div) => getPeriodSnapshot(period, div));
+  const effectivePeriod = period.startsWith('2026-')
+    ? normalizePeriodForDivision(period, 'Weapon & Ammunition')
+    : period;
+  const groupSnap = getPeriodSnapshot(effectivePeriod, 'Grupo Consolidado');
+  const divSnapshots = DEFENSE_DIVISIONS.map((div) => getPeriodSnapshot(effectivePeriod, div));
 
   const quarters = ['Q1 2026', 'Q2 2026', 'Q3 2026', 'Q4 2026'];
   const chartData = quarters.map((q) => {
@@ -84,24 +88,95 @@ export function DivisionalView({ period, onSelectDivision }: DivisionalViewProps
 
   return (
     <div className="space-y-6">
-      {/* Super Card: División Defensa grouping all 3 Defense divisions */}
+      {/* Super Card: División Defensa (Grupo Consolidado) grouping all 3 sub-divisions */}
       <section className="rhm-card rounded-xl p-4 sm:p-5">
         <div
           className="flex flex-wrap items-center justify-between gap-2 border-b pb-3"
           style={{ borderColor: 'var(--border-color)' }}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Factory className="h-4 w-4" style={{ color: 'var(--accent-blue)' }} />
             <h2 className="font-display text-sm font-semibold tracking-tight text-[var(--text-primary)]">
               División Defensa
             </h2>
             <span className="text-[11px] text-[var(--text-muted)]">
-              · {DEFENSE_DIVISIONS.length} sub-divisiones
+              · Grupo Consolidado ({DEFENSE_DIVISIONS.length} sub-divisiones)
+            </span>
+            <span className="rounded border border-[var(--border-color)] bg-[var(--bg-elevated)] px-2 py-0.5 font-mono-num text-[10px] font-semibold text-[var(--text-secondary)]">
+              {periodChip}
             </span>
           </div>
-          <span className="rounded border border-[var(--border-color)] bg-[var(--bg-elevated)] px-2 py-0.5 font-mono-num text-[11px] font-semibold text-[var(--text-secondary)]">
-            {periodChip}
-          </span>
+
+          {onSelectDivision && (
+            <button
+              type="button"
+              onClick={() => onSelectDivision('Grupo Consolidado')}
+              className="cursor-pointer rounded-md border px-3 py-1.5 text-[11px] font-semibold transition hover:opacity-90"
+              style={{
+                backgroundColor: 'var(--accent-blue-soft)',
+                borderColor: 'var(--border-color)',
+                color: 'var(--accent-blue)',
+              }}
+            >
+              Filtrar tablero: Grupo Consolidado →
+            </button>
+          )}
+        </div>
+
+        {/* Consolidated Group Baseline Metrics */}
+        <div
+          className="grid grid-cols-2 gap-x-4 gap-y-2.5 border-b py-3 sm:grid-cols-3 lg:grid-cols-6"
+          style={{ borderColor: 'var(--border-color)' }}
+        >
+          <div>
+            <div className="text-[10px] uppercase text-[var(--text-muted)]">Ventas Grupo</div>
+            <div className="font-mono-num text-sm font-bold text-[var(--text-primary)]">
+              {formatCurrencyMeur(groupSnap.ventasMeur, 1)}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-[var(--text-muted)]">Pedidos Grupo</div>
+            <div
+              className="font-mono-num text-sm font-bold"
+              style={{ color: 'var(--accent-blue)' }}
+            >
+              {formatCurrencyMeur(groupSnap.pedidosMeur, 1)}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-[var(--text-muted)]">Margen Op.</div>
+            <div className="font-mono-num text-sm font-bold text-[var(--text-primary)]">
+              {groupSnap.kpis['KPI-1.2'].formattedValue}
+              <span className="ml-1 text-[10px] font-normal text-[var(--text-muted)]">
+                ({formatCurrencyMeur(groupSnap.ebitMeur, 0)})
+              </span>
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-[var(--text-muted)]">Book-to-Bill</div>
+            <div className="font-mono-num text-sm font-bold text-[var(--text-primary)]">
+              {groupSnap.kpis['KPI-1.1'].formattedValue}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-[var(--text-muted)]">OEE · FPY</div>
+            <div className="font-mono-num mt-0.5 text-xs font-semibold text-[var(--text-primary)]">
+              {groupSnap.kpis['KPI-2.1'].formattedValue} · {groupSnap.kpis['KPI-3.1'].formattedValue}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase text-[var(--text-muted)]">Estado KPIs (10)</div>
+            <div
+              className="font-mono-num mt-0.5 text-xs font-semibold"
+              title={`Semáforo de los 10 KPIs: ${groupSnap.counts.optimo} Óptimo, ${groupSnap.counts.preventivo} Preventivo, ${groupSnap.counts.critico} Crítico`}
+            >
+              <span style={{ color: 'var(--status-green-text)' }}>{groupSnap.counts.optimo} Ópt.</span>
+              <span className="text-[var(--text-muted)]"> · </span>
+              <span style={{ color: 'var(--status-yellow-text)' }}>{groupSnap.counts.preventivo} Prev.</span>
+              <span className="text-[var(--text-muted)]"> · </span>
+              <span style={{ color: 'var(--status-red-text)' }}>{groupSnap.counts.critico} Crít.</span>
+            </div>
+          </div>
         </div>
 
         <div className="mt-4 grid gap-3.5 lg:grid-cols-3">
@@ -151,16 +226,29 @@ export function DivisionalView({ period, onSelectDivision }: DivisionalViewProps
                 </div>
               </div>
 
-              <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                <span className="text-[var(--text-secondary)]">
-                  OEE <strong className="font-mono-num">{snap.kpis['KPI-2.1'].formattedValue}</strong> · FPY{' '}
-                  <strong className="font-mono-num">{snap.kpis['KPI-3.1'].formattedValue}</strong>
-                </span>
-                <span className="font-mono-num font-bold">
-                  <span style={{ color: 'var(--status-green-text)' }}>{snap.counts.optimo}Ó</span> /{' '}
-                  <span style={{ color: 'var(--status-yellow-text)' }}>{snap.counts.preventivo}P</span> /{' '}
-                  <span style={{ color: 'var(--status-red-text)' }}>{snap.counts.critico}C</span>
-                </span>
+              <div className="mt-2.5 space-y-1.5 text-[11px]">
+                <div className="flex items-center justify-between text-[var(--text-secondary)]">
+                  <span>
+                    OEE <strong className="font-mono-num">{snap.kpis['KPI-2.1'].formattedValue}</strong>
+                  </span>
+                  <span>
+                    FPY <strong className="font-mono-num">{snap.kpis['KPI-3.1'].formattedValue}</strong>
+                  </span>
+                </div>
+                <div
+                  className="flex items-center justify-between border-t pt-1.5"
+                  style={{ borderColor: 'var(--border-color)' }}
+                  title={`Semáforo de los 10 KPIs: ${snap.counts.optimo} Óptimo, ${snap.counts.preventivo} Preventivo, ${snap.counts.critico} Crítico`}
+                >
+                  <span className="text-[var(--text-muted)]">Estado KPIs (10)</span>
+                  <span className="font-mono-num font-semibold">
+                    <span style={{ color: 'var(--status-green-text)' }}>{snap.counts.optimo} Ópt.</span>
+                    <span className="text-[var(--text-muted)]"> · </span>
+                    <span style={{ color: 'var(--status-yellow-text)' }}>{snap.counts.preventivo} Prev.</span>
+                    <span className="text-[var(--text-muted)]"> · </span>
+                    <span style={{ color: 'var(--status-red-text)' }}>{snap.counts.critico} Crít.</span>
+                  </span>
+                </div>
               </div>
 
               {onSelectDivision && (

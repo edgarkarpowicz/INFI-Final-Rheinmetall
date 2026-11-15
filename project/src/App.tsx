@@ -20,7 +20,7 @@ const VALID_VIEWS: MainViewId[] = ['overview', 'sectors', 'divisions', 'methodol
 
 function getInitialViewFromHash(): MainViewId {
   const raw = window.location.hash.replace(/^#\/?/, '') as MainViewId;
-  return VALID_VIEWS.includes(raw) ? raw : 'overview';
+  return VALID_VIEWS.includes(raw) ? raw : 'divisions';
 }
 
 export function App() {
