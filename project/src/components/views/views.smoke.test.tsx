@@ -260,6 +260,8 @@ describe('Dashboard UI Views & Layout — Render Smoke Tests', () => {
       );
       const unescaped = html.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
       expect(unescaped).toContain(code);
+      expect(unescaped).toContain(kpi.meta.unidad);
+      expect(unescaped).toContain(kpi.meta.indicadoresBase[0]);
       expect(unescaped).toContain(kpi.meta.protocolo);
       expect(unescaped).toContain(kpi.meta.frecuenciaMedicion);
     }

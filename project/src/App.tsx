@@ -64,6 +64,16 @@ export function App() {
     [period, division]
   );
 
+  const topBarSnapshot = useMemo(() => {
+    if (activeView === 'divisions' && snapshot.period.startsWith('2026-')) {
+      return getPeriodSnapshot(
+        normalizePeriodForDivision(snapshot.period, 'Weapon & Ammunition'),
+        'Grupo Consolidado'
+      );
+    }
+    return snapshot;
+  }, [activeView, snapshot]);
+
   const alertCount = snapshot.counts.preventivo + snapshot.counts.critico;
 
   return (
@@ -90,9 +100,9 @@ export function App() {
           persona={persona}
           division={division}
           onDivisionChange={handleDivisionChange}
-          period={snapshot.period}
+          period={topBarSnapshot.period}
           onPeriodChange={setPeriod}
-          dataOriginLabel={snapshot.dataOriginLabel}
+          dataOriginLabel={topBarSnapshot.dataOriginLabel}
           isDivisionalQuarterlyOnly={snapshot.isDivisionalQuarterlyOnly}
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
         />

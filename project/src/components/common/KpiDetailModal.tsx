@@ -118,6 +118,9 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
               <div className="mt-1 font-mono-num text-[11px] text-[var(--text-secondary)]">
                 {kpi.deltaLabel}
               </div>
+              <div className="mt-2 border-t pt-1.5 text-[11px] text-[var(--text-muted)]" style={{ borderColor: 'var(--border-color)' }}>
+                Unidad: <strong className="font-medium text-[var(--text-secondary)]">{kpi.meta.unidad}</strong>
+              </div>
             </div>
 
             <div
@@ -144,6 +147,10 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
                     <span className="font-mono-num font-bold text-[var(--text-primary)]">{inp.value}</span>
                   </div>
                 ))}
+              </div>
+              <div className="mt-2.5 text-[11px] text-[var(--text-muted)]">
+                <span className="font-semibold text-[var(--text-secondary)]">Indicadores base: </span>
+                {kpi.meta.indicadoresBase.join(' · ')}
               </div>
             </div>
           </div>

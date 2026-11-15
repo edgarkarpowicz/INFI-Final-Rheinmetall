@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rheinmetall AG — Tablero de Control Estratégico &amp; KPI 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="deck-shell">
+      <!-- Animated Tactical Blueprint Layer (Low-glare subtle silhouettes) -->
+      <div class="tactical-backdrop" id="tacticalBackdrop" aria-hidden="true">
+        <!-- Interactive High-altitude delta fighter jet + contrail -->
+        <div
+          class="bg-jet-flight"
+          id="jetStage"
+          role="button"
+          tabindex="-1"
+          aria-label="Caza táctico interactivo: clic para transmisión aérea"
+          title="Clic en el avión para reporte aéreo"
+        >
+          <div class="comic-callout comic-callout-jet font-mono" id="jetCallout">
+            ¡Cielo despejado Skynex! Q4 al 100%
+          </div>
+          <svg viewBox="0 0 280 86" fill="none">
+            <!-- Dotted contrail -->
+            <line
+              class="bg-jet-contrail"
+              x1="0"
+              y1="44"
+              x2="96"
+              y2="44"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              opacity="0.7"
+            />
+            <line
+              class="bg-jet-contrail"
+              x1="12"
+              y1="48"
+              x2="94"
+              y2="48"
+              stroke="currentColor"
+              stroke-width="1.2"
+              stroke-linecap="round"
+              opacity="0.45"
+            />
+            <!-- Afterburner plume -->
+            <polygon class="jet-afterburner" points="104,41 86,45 104,49" fill="currentColor" opacity="0.34" />
+            <!-- Delta Jet Fuselage, Wings & Canards -->
+            <path
+              d="M254 45 L212 37 L186 24 L178 24 L188 38 L142 36 L112 10 L102 10 L118 39 L102 41 L102 49 L118 51 L102 74 L114 74 L148 53 L194 52 L220 49 Z"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linejoin="round"
+              fill="currentColor"
+              fill-opacity="0.08"
+            />
+            <!-- Cockpit Canopy -->
+            <path
+              d="M226 41 Q211 33 196 39 Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              fill="currentColor"
+              fill-opacity="0.16"
+            />
+            <!-- Tail Fin Line -->
+            <path d="M114 39 L106 23 L122 39" stroke="currentColor" stroke-width="1.5" />
+          </svg>
+        </div>
+
+        <!-- Skynex Tactical Radar Sweep (top-right airspace scanner) -->
+        <svg class="bg-radar" viewBox="0 0 144 144" fill="none">
+          <circle cx="72" cy="72" r="64" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4" />
+          <circle cx="72" cy="72" r="44" stroke="currentColor" stroke-width="1.2" opacity="0.8" />
+          <circle cx="72" cy="72" r="22" stroke="currentColor" stroke-width="1.1" opacity="0.7" />
+          <line x1="8" y1="72" x2="136" y2="72" stroke="currentColor" stroke-width="1" opacity="0.55" />
+          <line x1="72" y1="8" x2="72" y2="136" stroke="currentColor" stroke-width="1" opacity="0.55" />
+          <g class="radar-sweep">
+            <path d="M72 72 L72 10 A62 62 0 0 1 118 30 Z" fill="currentColor" opacity="0.18" />
+            <line x1="72" y1="72" x2="72" y2="10" stroke="currentColor" stroke-width="1.8" />
+          </g>
+          <circle cx="96" cy="48" r="2.6" fill="currentColor" opacity="0.85" />
+          <circle cx="48" cy="90" r="2.2" fill="currentColor" opacity="0.7" />
+        </svg>
+
+        <!-- Interactive 155mm Self-Propelled Artillery Howitzer (PzH 2000 L52, bottom-left) -->
+        <div
+          class="bg-artillery-stage"
+          id="artilleryStage"
+          role="button"
+          tabindex="-1"
+          aria-label="Obús autopropulsado 155 mm interactivo: clic para salva"
+          title="Clic en la artillería 155 mm para saludo balístico"
+        >
+          <div class="comic-callout comic-callout-artillery font-mono" id="artilleryCallout">
+            ¡Salva 155 mm L52! Meta 1,1M u./año
+          </div>
+          <svg viewBox="0 0 320 190" fill="none">
+            <g class="tank-hull-bob">
+              <!-- Rear artillery turret -->
+              <path
+                d="M36 126 L44 92 L134 92 L152 108 L152 126 Z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linejoin="round"
+                fill="currentColor"
+                fill-opacity="0.07"
+              />
+              <!-- Turret commander cupola & optics -->
+              <rect x="64" y="84" width="20" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+              <rect x="102" y="85" width="16" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+              <path d="M48 92 L42 62" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+
+              <!-- Elevated 52-caliber 155mm gun barrel at -28 deg -->
+              <g transform="translate(142, 108) rotate(-28)">
+                <g class="artillery-barrel-recoil">
+                  <rect
+                    x="0"
+                    y="-3.5"
+                    width="166"
+                    height="7"
+                    rx="2"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    fill="currentColor"
+                    fill-opacity="0.08"
+                  />
+                  <!-- Bore evacuator -->
+                  <rect
+                    x="54"
+                    y="-6.5"
+                    width="28"
+                    height="13"
+                    rx="3"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    fill="var(--bg-canvas)"
+                  />
+                  <!-- Pepperpot 155mm muzzle brake -->
+                  <rect x="164" y="-6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.6" />
+                </g>
+                <!-- Muzzle flash at tip -->
+                <g class="artillery-muzzle-flash">
+                  <polygon
+                    points="178,0 198,-10 189,-2 204,0 189,3 197,11 178,2"
+                    fill="currentColor"
+                    opacity="0.78"
+                  />
+                  <circle cx="182" cy="0" r="13" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" />
+                </g>
+              </g>
+
+              <!-- Hull & Rear Spade -->
+              <path
+                d="M15 157 L24 140 L31 140 L24 162 Z"
+                stroke="currentColor"
+                stroke-width="1.6"
+                fill="currentColor"
+                fill-opacity="0.08"
+              />
+              <path
+                d="M26 148 L26 126 L208 126 L236 144 L228 156 L26 156 Z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linejoin="round"
+                fill="currentColor"
+                fill-opacity="0.06"
+              />
+            </g>
+
+            <!-- Howitzer Track Frame & Wheels -->
+            <rect
+              x="28"
+              y="148"
+              width="192"
+              height="28"
+              rx="14"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="currentColor"
+              fill-opacity="0.04"
+            />
+            <circle cx="46" cy="162" r="8.5" stroke="currentColor" stroke-width="1.7" />
+            <circle cx="76" cy="162" r="9.5" stroke="currentColor" stroke-width="1.7" />
+            <circle cx="106" cy="162" r="9.5" stroke="currentColor" stroke-width="1.7" />
+            <circle cx="136" cy="162" r="9.5" stroke="currentColor" stroke-width="1.7" />
+            <circle cx="166" cy="162" r="9.5" stroke="currentColor" stroke-width="1.7" />
+            <circle cx="198" cy="162" r="8.5" stroke="currentColor" stroke-width="1.7" />
+            <line
+              x1="10"
+              y1="180"
+              x2="254"
+              y2="180"
+              stroke="currentColor"
+              stroke-width="1.2"
+              stroke-dasharray="10 6"
+              opacity="0.5"
+            />
+          </svg>
+        </div>
+
+        <!-- Patrolling GTK Boxer 8x8 IFV (Lance 30mm turret, gliding along floor) -->
+        <div
+          class="bg-boxer-stage"
+          id="boxerStage"
+          role="button"
+          tabindex="-1"
+          aria-label="Vehículo blindado GTK Boxer 8x8 interactivo: clic para reporte"
+          title="Clic en el Boxer 8x8 para reporte de Vehicle Systems"
+        >
+          <div class="comic-callout comic-callout-boxer font-mono" id="boxerCallout">
+            GTK Boxer 8x8 · Kassel + Telford UK
+          </div>
+          <svg viewBox="0 0 260 120" fill="none">
+            <g class="boxer-hull-bob">
+              <!-- Lance 30mm Modular IFV Turret -->
+              <path
+                d="M110 49 L122 29 L166 29 L178 39 L174 49 Z"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linejoin="round"
+                fill="currentColor"
+                fill-opacity="0.08"
+              />
+              <!-- Electro-optic sight & mast -->
+              <rect x="134" y="21" width="15" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4" />
+              <line x1="118" y1="29" x2="112" y2="12" stroke="currentColor" stroke-width="1.2" />
+              <!-- 30mm MK30-2 Autocannon pointing right -->
+              <rect x="176" y="36" width="66" height="4.5" rx="1.5" stroke="currentColor" stroke-width="1.6" />
+              <rect x="240" y="34.5" width="7" height="7.5" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+
+              <!-- GTK Boxer Modular 8x8 Hull -->
+              <path
+                d="M22 76 L26 49 L186 49 L236 67 L232 82 L22 82 Z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linejoin="round"
+                fill="currentColor"
+                fill-opacity="0.06"
+              />
+              <path
+                d="M32 56 L178 56 L195 67 L32 67 Z"
+                stroke="currentColor"
+                stroke-width="1.2"
+                opacity="0.7"
+              />
+              <!-- Mission module seam line -->
+              <line x1="112" y1="49" x2="112" y2="82" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3 2" />
+            </g>
+
+            <!-- 8x8 Independent Heavy Off-Road Wheels (spinning clockwise) -->
+            <g class="boxer-wheel">
+              <circle cx="48" cy="86" r="15.5" stroke="currentColor" stroke-width="2.1" fill="var(--bg-canvas)" fill-opacity="0.65" />
+              <circle cx="48" cy="86" r="7" stroke="currentColor" stroke-width="1.5" />
+              <line x1="39" y1="86" x2="57" y2="86" stroke="currentColor" stroke-width="1.2" />
+              <line x1="48" y1="77" x2="48" y2="95" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <g class="boxer-wheel">
+              <circle cx="96" cy="86" r="15.5" stroke="currentColor" stroke-width="2.1" fill="var(--bg-canvas)" fill-opacity="0.65" />
+              <circle cx="96" cy="86" r="7" stroke="currentColor" stroke-width="1.5" />
+              <line x1="87" y1="86" x2="105" y2="86" stroke="currentColor" stroke-width="1.2" />
+              <line x1="96" y1="77" x2="96" y2="95" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <g class="boxer-wheel">
+              <circle cx="144" cy="86" r="15.5" stroke="currentColor" stroke-width="2.1" fill="var(--bg-canvas)" fill-opacity="0.65" />
+              <circle cx="144" cy="86" r="7" stroke="currentColor" stroke-width="1.5" />
+              <line x1="135" y1="86" x2="153" y2="86" stroke="currentColor" stroke-width="1.2" />
+              <line x1="144" y1="77" x2="144" y2="95" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <g class="boxer-wheel">
+              <circle cx="192" cy="86" r="15.5" stroke="currentColor" stroke-width="2.1" fill="var(--bg-canvas)" fill-opacity="0.65" />
+              <circle cx="192" cy="86" r="7" stroke="currentColor" stroke-width="1.5" />
+              <line x1="183" y1="86" x2="201" y2="86" stroke="currentColor" stroke-width="1.2" />
+              <line x1="192" y1="77" x2="192" y2="95" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <line
+              x1="12"
+              y1="104"
+              x2="244"
+              y2="104"
+              stroke="currentColor"
+              stroke-width="1.1"
+              stroke-dasharray="8 5"
+              opacity="0.45"
+            />
+          </svg>
+        </div>
+
+        <!-- Interactive Leopard / Lynx Tank (click for comical salute & recoil!) -->
+        <div
+          class="bg-tank-stage"
+          id="tankStage"
+          role="button"
+          tabindex="-1"
+          aria-label="Tanque táctico interactivo: clic para saludo"
+          title="Clic en el tanque para saludo táctico"
+        >
+          <div class="comic-callout font-mono" id="tankCallout">
+            ¡+1 Pedido OTAN! Book-to-Bill 2,28x
+          </div>
+          <svg viewBox="0 0 360 175" fill="none">
+            <!-- Muzzle flash centered at (25, 92) -->
+            <g class="muzzle-flash">
+              <polygon
+                points="25,92 4,82 14,90 1,92 14,95 5,103 25,94"
+                fill="currentColor"
+                opacity="0.75"
+              />
+              <circle cx="23" cy="92" r="14" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 3" />
+            </g>
+
+            <g class="tank-hull-bob">
+              <!-- Turret + 120mm L55 Smoothbore Gun (facing left, recoil pivots at 185,96) -->
+              <g class="tank-turret-group">
+                <!-- Comms antenna -->
+                <path d="M262 72 L272 28" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+                <circle cx="272" cy="27" r="2" fill="currentColor" />
+                <!-- Main gun barrel pointing left to x=26 -->
+                <rect
+                  x="26"
+                  y="89"
+                  width="126"
+                  height="6"
+                  rx="2"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  fill="currentColor"
+                  fill-opacity="0.08"
+                />
+                <!-- Bore evacuator -->
+                <rect
+                  x="76"
+                  y="86"
+                  width="24"
+                  height="12"
+                  rx="3"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  fill="var(--bg-canvas)"
+                />
+                <!-- Muzzle brake tip -->
+                <rect x="24" y="87" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.6" />
+                <!-- Composite Arrowhead Turret Armor -->
+                <path
+                  d="M144 96 L168 72 L252 72 L272 86 L272 104 L144 104 Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                  fill="currentColor"
+                  fill-opacity="0.07"
+                />
+                <!-- Turret optics & commander cupola -->
+                <rect x="172" y="64" width="18" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+                <rect x="218" y="65" width="22" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" />
+                <line x1="164" y1="88" x2="258" y2="88" stroke="currentColor" stroke-width="1.1" opacity="0.6" />
+              </g>
+
+              <!-- Glacis & Main Armored Hull -->
+              <path
+                d="M78 122 L118 104 L298 104 L322 118 L314 134 L86 134 Z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linejoin="round"
+                fill="currentColor"
+                fill-opacity="0.06"
+              />
+              <!-- Reactive Side Skirts -->
+              <path
+                d="M106 122 L304 122 L298 136 L112 136 Z"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-dasharray="28 4"
+                opacity="0.85"
+              />
+            </g>
+
+            <!-- Continuous Caterpillar Track Frame -->
+            <rect
+              x="92"
+              y="128"
+              width="216"
+              height="30"
+              rx="15"
+              stroke="currentColor"
+              stroke-width="2.1"
+              fill="currentColor"
+              fill-opacity="0.04"
+            />
+            <!-- Road Wheels (animated spin) -->
+            <g class="tank-wheel">
+              <circle cx="110" cy="143" r="9.5" stroke="currentColor" stroke-width="1.8" />
+              <line x1="103" y1="143" x2="117" y2="143" stroke="currentColor" stroke-width="1.2" />
+              <line x1="110" y1="136" x2="110" y2="150" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <g class="tank-wheel">
+              <circle cx="141" cy="143" r="10.5" stroke="currentColor" stroke-width="1.8" />
+              <line x1="133" y1="143" x2="149" y2="143" stroke="currentColor" stroke-width="1.2" />
+              <line x1="141" y1="135" x2="141" y2="151" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <g class="tank-wheel">
+              <circle cx="172" cy="143" r="10.5" stroke="currentColor" stroke-width="1.8" />
+              <line x1="164" y1="143" x2="180" y2="143" stroke="currentColor" stroke-width="1.2" />
+              <line x1="172" y1="135" x2="172" y2="151" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <g class="tank-wheel">
+              <circle cx="203" cy="143" r="10.5" stroke="currentColor" stroke-width="1.8" />
+              <line x1="195" y1="143" x2="211" y2="143" stroke="currentColor" stroke-width="1.2" />
+              <line x1="203" y1="135" x2="203" y2="151" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <g class="tank-wheel">
+              <circle cx="234" cy="143" r="10.5" stroke="currentColor" stroke-width="1.8" />
+              <line x1="226" y1="143" x2="242" y2="143" stroke="currentColor" stroke-width="1.2" />
+              <line x1="234" y1="135" x2="234" y2="151" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <g class="tank-wheel">
+              <circle cx="265" cy="143" r="10.5" stroke="currentColor" stroke-width="1.8" />
+              <line x1="257" y1="143" x2="273" y2="143" stroke="currentColor" stroke-width="1.2" />
+              <line x1="265" y1="135" x2="265" y2="151" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <g class="tank-wheel">
+              <circle cx="293" cy="143" r="9.5" stroke="currentColor" stroke-width="1.8" />
+              <line x1="286" y1="143" x2="300" y2="143" stroke="currentColor" stroke-width="1.2" />
+              <line x1="293" y1="136" x2="293" y2="150" stroke="currentColor" stroke-width="1.2" />
+            </g>
+            <!-- Ground Baseline -->
+            <line
+              x1="54"
+              y1="162"
+              x2="338"
+              y2="162"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-dasharray="10 6"
+              opacity="0.5"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Top HUD Bar -->
+      <header class="hud-topbar">
+        <div class="brand-lockup">
+          <div class="brand-badge" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <polygon
+                points="12,2 21,7.2 21,16.8 12,22 3,16.8 3,7.2"
+                stroke="var(--accent-blue)"
+                stroke-width="2"
+                fill="var(--accent-blue-soft)"
+              />
+              <circle cx="12" cy="12" r="3.2" fill="var(--accent-blue)" />
+              <line x1="12" y1="4.5" x2="12" y2="8.2" stroke="var(--accent-blue)" stroke-width="1.6" />
+              <line x1="12" y1="15.8" x2="12" y2="19.5" stroke="var(--accent-blue)" stroke-width="1.6" />
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title font-display">RHEINMETALL AG</div>
+            <div class="brand-sub" id="hudSlideTitle">Tablero Estratégico &amp; KPI · 2026</div>
+          </div>
+        </div>
+
+        <div class="hud-actions">
+          <button class="hud-btn" id="btnMap" type="button" title="Abrir mapa de diapositivas (M)">
+            <span>Índice</span>
+            <span class="font-mono" style="opacity: 0.7">(M)</span>
+          </button>
+          <button
+            class="hud-btn is-active"
+            id="btnFleet"
+            type="button"
+            title="Mostrar/ocultar vehículos tácticos (F)"
+          >
+            <span>Flota Táctica</span>
+            <span class="font-mono" style="opacity: 0.7">(F)</span>
+          </button>
+          <button class="hud-btn" id="btnTheme" type="button" title="Alternar tema claro/oscuro (T)">
+            <span id="themeLabel">Modo Oscuro</span>
+            <span class="font-mono" style="opacity: 0.7">(T)</span>
+          </button>
+          <button class="hud-btn" id="btnFullscreen" type="button" title="Pantalla completa">
+            <span>Fullscreen</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Slide Viewport -->
+      <main class="slide-viewport">
+        <div class="slide-container" id="slideMount" aria-live="polite"></div>
+      </main>
+
+      <!-- Bottom Navigation + Mini Tank Crawler Progress -->
+      <footer class="hud-footer">
+        <div class="tank-track-bar" aria-hidden="true">
+          <div class="tank-track-fill" id="progressFill" style="width: 10%"></div>
+          <div class="mini-tank-crawler" id="miniTank" style="left: 5%">
+            <!-- Mini crawling tank facing right -->
+            <svg viewBox="0 0 38 20" fill="none">
+              <rect x="24" y="6" width="13" height="2.4" rx="1" fill="currentColor" />
+              <path d="M11 4 H25 L27 9 H9 Z" fill="currentColor" />
+              <rect x="4" y="9" width="25" height="5" rx="2.5" fill="currentColor" opacity="0.9" />
+              <rect x="3" y="13" width="27" height="5.5" rx="2.75" stroke="currentColor" stroke-width="1.5" fill="var(--bg-surface)" />
+              <circle cx="7.5" cy="15.8" r="1.4" fill="currentColor" />
+              <circle cx="12.5" cy="15.8" r="1.4" fill="currentColor" />
+              <circle cx="17.5" cy="15.8" r="1.4" fill="currentColor" />
+              <circle cx="22.5" cy="15.8" r="1.4" fill="currentColor" />
+              <circle cx="26.5" cy="15.8" r="1.4" fill="currentColor" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="footer-controls">
+          <button class="hud-btn" id="btnPrev" type="button">← Anterior</button>
+          <div class="slide-dots" id="slideDots" aria-label="Navegación por diapositivas"></div>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <span class="font-mono" id="slideCounter" style="font-size: 12px; color: var(--text-muted)">
+              01 / 10
+            </span>
+            <button class="hud-btn" id="btnNext" type="button">Siguiente →</button>
+          </div>
+        </div>
+      </footer>
+
+      <!-- Slide Map Modal -->
+      <div class="overview-modal" id="overviewModal" aria-hidden="true" role="dialog" aria-label="Índice de presentación">
+        <div class="overview-panel">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+            <div>
+              <div class="slide-kicker">Navegación Rápida</div>
+              <h2 class="font-display" style="margin: 6px 0 0; font-size: 20px">
+                Índice de la Presentación (10 Diapositivas)
+              </h2>
+            </div>
+            <button class="hud-btn" id="btnCloseMap" type="button">Cerrar (Esc)</button>
+          </div>
+          <div class="overview-grid" id="overviewGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./data.js" defer></script>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
