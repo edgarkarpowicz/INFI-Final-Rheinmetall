@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+:root {
+  --rhm-navy-deep: #1e293b;
+  --rhm-blue-regal: #1d5b8c;
+  --rhm-blue-bright: #2b6cb0;
+  --rhm-grey-tech: #4b5563;
+
+  /* Zero-Glare Nordic Executive Paper (Calm, Soft Contrast) */
+  --bg-canvas: #eceff4;
+  --bg-surface: #f8f9fb;
+  --bg-elevated: #f1f4f8;
+  --bg-subtle: #e4e9f0;
+  --border-color: #dce2ea;
+  --border-strong: #c7d0dc;
+
+  --text-primary: #1e293b;
+  --text-secondary: #526071;
+  --text-muted: #6e7d91;
+  --accent-blue: #1d5b8c;
+  --accent-blue-soft: #e6eff7;
+
+  /* Harmonized Architectural Sidebar (Light Mode) */
+  --sidebar-bg: #e5eaf1;
+  --sidebar-border: #d3dbe6;
+  --sidebar-text: #1e293b;
+  --sidebar-muted: #5e6d82;
+  --sidebar-hover: rgba(29, 91, 140, 0.08);
+  --sidebar-active-bg: #1d5b8c;
+  --sidebar-active-text: #f8fafc;
+  --sidebar-card-active-bg: rgba(29, 91, 140, 0.1);
+  --sidebar-card-active-border: rgba(29, 91, 140, 0.3);
+
+  --chart-grid: #dfe5ee;
+  --chart-axis: #64748b;
+  --tooltip-bg: #f8f9fb;
+  --tooltip-border: #cbd5e1;
+
+  /* Desaturated Eye-Friendly Semaphore Palette */
+  --status-green: #2f855a;
+  --status-green-text: #276749;
+  --status-green-bg: #ebf5f0;
+  --status-green-border: #c3dfce;
+
+  --status-yellow: #b7791f;
+  --status-yellow-text: #975a16;
+  --status-yellow-bg: #fbf5e8;
+  --status-yellow-border: #ead6ae;
+
+  --status-red: #b84a4a;
+  --status-red-text: #9b3b3b;
+  --status-red-bg: #faf0f0;
+  --status-red-border: #e5c2c2;
+}
+
+/* Soft Matte Charcoal (Low-Halation Dark Mode) */
+:root[data-theme="dark"] {
+  --bg-canvas: #12161c;
+  --bg-surface: #181e26;
+  --bg-elevated: #1f2630;
+  --bg-subtle: #262f3b;
+  --border-color: #28313e;
+  --border-strong: #364253;
+
+  --text-primary: #d6dce5;
+  --text-secondary: #9aa5b4;
+  --text-muted: #727f90;
+  --accent-blue: #74a9d8;
+  --accent-blue-soft: rgba(116, 169, 216, 0.14);
+
+  --sidebar-bg: #151a22;
+  --sidebar-border: #232b38;
+  --sidebar-text: #d6dce5;
+  --sidebar-muted: #7e8b9b;
+  --sidebar-hover: rgba(255, 255, 255, 0.05);
+  --sidebar-active-bg: #275780;
+  --sidebar-active-text: #f1f5f9;
+  --sidebar-card-active-bg: rgba(116, 169, 216, 0.12);
+  --sidebar-card-active-border: rgba(116, 169, 216, 0.32);
+
+  --chart-grid: #242d3a;
+  --chart-axis: #8e9bab;
+  --tooltip-bg: #181e26;
+  --tooltip-border: #364253;
+
+  --status-green: #54a87e;
+  --status-green-text: #74c69d;
+  --status-green-bg: rgba(84, 168, 126, 0.11);
+  --status-green-border: rgba(84, 168, 126, 0.24);
+
+  --status-yellow: #d09b4b;
+  --status-yellow-text: #e0b46b;
+  --status-yellow-bg: rgba(208, 155, 75, 0.11);
+  --status-yellow-border: rgba(208, 155, 75, 0.24);
+
+  --status-red: #ce6b6b;
+  --status-red-text: #df8b8b;
+  --status-red-bg: rgba(206, 107, 107, 0.11);
+  --status-red-border: rgba(206, 107, 107, 0.24);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.font-display {
+  font-family: 'Barlow', 'Inter', system-ui, sans-serif;
+}
+
+.font-mono-num {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.rhm-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.rhm-card:hover {
+  border-color: var(--border-strong);
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}

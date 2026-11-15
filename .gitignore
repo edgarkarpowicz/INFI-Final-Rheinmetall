@@ -1,0 +1,10 @@
+# Dependencies & build outputs
+node_modules/
+project/node_modules/
+project/dist/
+project/.vite/
+*.local
+
+# OS & editor files
+.DS_Store
+Thumbs.db
