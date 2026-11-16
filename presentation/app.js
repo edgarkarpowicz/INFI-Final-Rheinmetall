@@ -227,8 +227,8 @@
         <path d="${areaPath}" fill="var(--accent-blue)" opacity="0.12" />
         <path d="${linePath}" fill="none" stroke="var(--accent-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
         ${pts.map(function (p) {
-          return `<circle cx="${p.x}" cy="${p.y}" r="1.8" fill="var(--bg-surface)" stroke="var(--accent-blue)" stroke-width="1.2" />`;
-        }).join('')}
+      return `<circle cx="${p.x}" cy="${p.y}" r="1.8" fill="var(--bg-surface)" stroke="var(--accent-blue)" stroke-width="1.2" />`;
+    }).join('')}
         <circle cx="${last.x}" cy="${last.y}" r="3" fill="${dotColor}" />
       </svg>
     `;
@@ -318,8 +318,8 @@
           </div>
           <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 9px">
             ${D.timeline
-              .map(function (item, idx) {
-                return `
+        .map(function (item, idx) {
+          return `
                   <button
                     class="timeline-pill ${idx === state.eraIndex ? 'is-active' : ''}"
                     type="button"
@@ -334,8 +334,8 @@
                     <div style="font-size: 12px; font-weight: 600; margin-top: 2px">${esc(item.title)}</div>
                   </button>
                 `;
-              })
-              .join('')}
+        })
+        .join('')}
           </div>
           <div class="rhm-subcard" style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.42">
             <strong style="color: var(--text-primary)">${esc(activeEra.title)}:</strong> ${esc(activeEra.fact)}
@@ -344,8 +344,8 @@
 
         <div class="grid-3 anim-rise delay-2">
           ${D.competitors
-            .map(function (comp) {
-              return `
+        .map(function (comp) {
+          return `
                 <div class="rhm-card ${comp.highlight ? 'card-highlight' : ''}" style="padding: 15px 16px">
                   <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
                     <span class="stat-label">${esc(comp.tier)}</span>
@@ -362,8 +362,8 @@
                   </p>
                 </div>
               `;
-            })
-            .join('')}
+        })
+        .join('')}
         </div>
       </div>
     `;
@@ -416,9 +416,9 @@
 
           <div class="grid-3">
             ${D.divisions
-              .map(function (div, idx) {
-                const dotColor = idx === 0 ? 'var(--accent-blue)' : idx === 1 ? 'var(--status-green)' : 'var(--status-yellow)';
-                return `
+        .map(function (div, idx) {
+          const dotColor = idx === 0 ? 'var(--accent-blue)' : idx === 1 ? 'var(--status-green)' : 'var(--status-yellow)';
+          return `
                   <div class="rhm-subcard" style="display: flex; flex-direction: column; justify-content: space-between; gap: 8px; padding: 13px 14px">
                     <div>
                       <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 5px">
@@ -462,8 +462,8 @@
                     </div>
                   </div>
                 `;
-              })
-              .join('')}
+        })
+        .join('')}
           </div>
         </div>
       </div>
@@ -479,26 +479,25 @@
         </div>
         <div class="grid-3" style="gap: 8px; margin-bottom: 9px">
           ${sideData.metrics
-            .map(function (m) {
-              return `
+        .map(function (m) {
+          return `
                 <div class="rhm-subcard" style="padding: 8px 10px">
                   <div class="stat-label">${esc(m.label)}</div>
-                  <div class="font-mono" style="font-size: 13px; font-weight: 700; margin-top: 2px; color: ${
-                    isAfter ? 'var(--accent-blue)' : 'var(--text-primary)'
-                  }">
+                  <div class="font-mono" style="font-size: 13px; font-weight: 700; margin-top: 2px; color: ${isAfter ? 'var(--accent-blue)' : 'var(--text-primary)'
+            }">
                     ${esc(m.value)}
                   </div>
                 </div>
               `;
-            })
-            .join('')}
+        })
+        .join('')}
         </div>
         <ul class="bullet-clean" style="gap: 5px; font-size: 12.5px">
           ${sideData.bullets
-            .map(function (b) {
-              return `<li>${esc(b)}</li>`;
-            })
-            .join('')}
+        .map(function (b) {
+          return `<li>${esc(b)}</li>`;
+        })
+        .join('')}
         </ul>
       </div>
     `;
@@ -518,8 +517,8 @@
         <div class="rhm-card anim-rise delay-1" style="padding: 12px 16px; margin-bottom: 12px">
           <div class="grid-2" style="gap: 16px">
             ${D.contextCompare.scaleBars
-              .map(function (bar) {
-                return `
+        .map(function (bar) {
+          return `
                   <div>
                     <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px">
                       <strong>${esc(bar.label)}</strong>
@@ -533,8 +532,8 @@
                     </div>
                   </div>
                 `;
-              })
-              .join('')}
+        })
+        .join('')}
           </div>
         </div>
 
@@ -566,9 +565,9 @@
 
         <div class="flow-chain anim-rise delay-1" style="margin-bottom: 12px">
           ${loopSteps
-            .map(function (n, i) {
-              const arrow = i < loopSteps.length - 1 ? '<span class="flow-arrow" aria-hidden="true">→</span>' : '';
-              return `
+        .map(function (n, i) {
+          const arrow = i < loopSteps.length - 1 ? '<span class="flow-arrow" aria-hidden="true">→</span>' : '';
+          return `
                 <div class="flow-node ${n.accent ? 'is-accent' : ''}">
                   <div class="font-mono" style="font-size: 10px; font-weight: 700; color: var(--accent-blue)">${n.step}</div>
                   <div style="font-size: 13px; font-weight: 700">${esc(n.label)}</div>
@@ -576,14 +575,14 @@
                 </div>
                 ${arrow}
               `;
-            })
-            .join('')}
+        })
+        .join('')}
         </div>
 
         <div class="justif-flex anim-rise delay-2">
           ${D.justifications
-            .map(function (item, idx) {
-              return `
+        .map(function (item, idx) {
+          return `
                 <button
                   class="rhm-card justif-item"
                   type="button"
@@ -608,8 +607,8 @@
                   </div>
                 </button>
               `;
-            })
-            .join('')}
+        })
+        .join('')}
         </div>
       </div>
     `;
@@ -629,8 +628,8 @@
 
         <div class="grid-5 anim-rise delay-1" style="margin-bottom: 12px">
           ${D.stakeholders
-            .map(function (st, idx) {
-              return `
+        .map(function (st, idx) {
+          return `
                 <button
                   class="rhm-card stakeholder-card ${idx === state.stakeholderIndex ? 'is-active' : ''}"
                   type="button"
@@ -646,8 +645,8 @@
                   <div style="font-size: 11px; color: var(--text-muted)">Foco: ${esc(st.focus)}</div>
                 </button>
               `;
-            })
-            .join('')}
+        })
+        .join('')}
         </div>
 
         <div class="rhm-card card-highlight anim-rise delay-2" style="padding: 16px 18px">
@@ -661,10 +660,10 @@
               <div class="stat-label">1. Qué Monitorea (KPIs por Sector)</div>
               <ul class="stakeholder-kpi-list">
                 ${active.monitoredBySector
-                  .map(function (entry) {
-                    return `<li><strong>${esc(entry.sector)}:</strong> ${esc(entry.detail)}</li>`;
-                  })
-                  .join('')}
+        .map(function (entry) {
+          return `<li><strong>${esc(entry.sector)}:</strong> ${esc(entry.detail)}</li>`;
+        })
+        .join('')}
               </ul>
             </div>
             <span class="flow-arrow" aria-hidden="true">→</span>
@@ -716,9 +715,9 @@
             </thead>
             <tbody>
               ${rows
-                .map(function (r) {
-                  const isLead = r.kpi.type === 'Leading';
-                  return `
+        .map(function (r) {
+          const isLead = r.kpi.type === 'Leading';
+          return `
                     <tr class="is-clickable" data-open-sector="${r.secIdx}" title="Abrir detalle de ${esc(r.sectorName)}">
                       <td style="font-weight: 600; white-space: nowrap">
                         <span class="font-mono" style="color: var(--accent-blue)">${esc(r.objetivoId)}</span>
@@ -741,8 +740,8 @@
                       </td>
                     </tr>
                   `;
-                })
-                .join('')}
+        })
+        .join('')}
             </tbody>
           </table>
         </div>
@@ -770,8 +769,8 @@
 
         <div class="tab-bar anim-rise delay-1" style="margin-bottom: 11px">
           ${D.sectorsKpis
-            .map(function (s, idx) {
-              return `
+        .map(function (s, idx) {
+          return `
                 <button
                   class="tab-btn ${idx === state.sectorIndex ? 'is-active' : ''}"
                   type="button"
@@ -780,16 +779,16 @@
                   ${esc(s.sectorName.split('(')[0].trim())}
                 </button>
               `;
-            })
-            .join('')}
+        })
+        .join('')}
         </div>
 
         <div class="grid-2 anim-rise delay-2">
           ${sector.kpis
-            .map(function (k) {
-              const isLead = k.type === 'Leading';
-              const isLowGood = k.code === 'KPI-3.2' || k.code === 'KPI-5.2';
-              return `
+        .map(function (k) {
+          const isLead = k.type === 'Leading';
+          const isLowGood = k.code === 'KPI-3.2' || k.code === 'KPI-5.2';
+          return `
                 <div class="rhm-card" style="padding: 14px 16px">
                   <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px">
                     <div>
@@ -842,8 +841,8 @@
                   </div>
                 </div>
               `;
-            })
-            .join('')}
+        })
+        .join('')}
         </div>
       </div>
     `;
@@ -933,9 +932,9 @@
 
       <div class="grid-2" style="margin-bottom: 12px">
         ${sector.kpis
-          .map(function (k) {
-            const isLead = k.type === 'Leading';
-            return `
+        .map(function (k) {
+          const isLead = k.type === 'Leading';
+          return `
               <div class="rhm-subcard" style="display: flex; flex-direction: column; gap: 7px">
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px">
                   <span class="pill ${isLead ? 'pill-blue' : 'pill-amber'} font-mono" style="font-size: 10.5px">
@@ -963,8 +962,8 @@
                 </div>
               </div>
             `;
-          })
-          .join('')}
+        })
+        .join('')}
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 8px">
@@ -1085,9 +1084,9 @@
 
   function toggleFullscreen() {
     if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(function () {});
+      document.documentElement.requestFullscreen().catch(function () { });
     } else if (document.fullscreenElement && document.exitFullscreen) {
-      document.exitFullscreen().catch(function () {});
+      document.exitFullscreen().catch(function () { });
     }
   }
 
