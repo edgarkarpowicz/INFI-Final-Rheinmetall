@@ -53,7 +53,7 @@ El flujo `.github/workflows/deploy-pages.yml` ejecuta `npm ci`, `npm test` y `np
 
 ## Cómo abrir la Presentación (`presentation/`)
 
-La carpeta `presentation/` contiene 9 diapositivas interactivas sin dependencias externas ni paso de compilación:
+La carpeta `presentation/` contiene 11 diapositivas interactivas sin dependencias externas ni paso de compilación:
 
 1. Abrir [`presentation/index.html`](presentation/index.html) directamente en cualquier navegador moderno.
 2. Controles disponibles:

@@ -457,4 +457,68 @@ window.PRESENTATION_DATA = {
       ],
     },
   ],
+
+  dataArchitecture: {
+    hybridPrinciple:
+      'Enfoque Híbrido: combina anclajes financieros y ESG reales divulgados por Rheinmetall AG con telemetría fabril simulada y calibrada donde existe secreto industrial.',
+    layers: [
+      {
+        title: 'Capa de Datos Corporativos Reales',
+        level: 'Nivel Macro Financiero y ESG',
+        badge: 'Auditados / Públicos',
+        pillClass: 'pill-green',
+        sources: 'Annual Report FY 2025, Quarterly Statements Q1–Q3 2026, Investor Presentations y ESG Report (ISO 45001).',
+        scope: 'Ventas (€8.376M 9M), Nomination (€19.100M), EBIT (16,0% 9M / 18,5% FY25), Backlog (€78.000M), stock estratégico (~€2.000M), demoras GQAR y LTIFR base.',
+        justification: 'Fija la verdad contable consolidada del grupo para que la evolución mensual y proyección Q4 cuadren con los reportes oficiales.',
+      },
+      {
+        title: 'Capa de Datos Industriales Simulados Calibrados',
+        level: 'Nivel Planta MES / QMS / SCM',
+        badge: 'Calibrados a Norma',
+        pillClass: 'pill-blue',
+        sources: 'Norma OTAN AQAP-2110, estándares europeos VDMA/SEMI y ramp-up real 2026 (70.000 a >700.000 proyectiles 155 mm/año).',
+        scope: 'Desagregación mensual y telemetría interna de planta: OEE (ciclo ideal 1,80 min), cumplimiento MPS, First-Pass Yield, OTIF Tier-1 y cierre ATEX.',
+        justification: 'Rheinmetall no publica datos PLC/SCADA ni entregas por proveedor por seguridad nacional y secreto industrial; calibrarlos conserva realismo operativo.',
+      },
+    ],
+  },
+
+  etlPipeline: {
+    flowSteps: [
+      { step: '01', label: 'Sistemas y Documentos Origen', desc: 'SAP S/4HANA · Opcenter MES · QMS · EHS' },
+      { step: '02', label: 'Extracción y Validación (ETL)', desc: 'Limpieza y corte mensual/trimestral' },
+      { step: '03', label: 'Motor de Cálculo KPI', desc: 'Fórmulas SMART y semáforos' },
+      { step: '04', label: 'Tablero Ejecutivo', desc: 'Alertas y protocolos por sector', accent: true },
+    ],
+    systems: [
+      {
+        name: 'ERP · SAP S/4HANA',
+        modules: 'SD · MM · FI/CO · SAP EWM · SAP Ariba',
+        docs: 'Contratos Rheinmetall Nomination, facturación, balances EBIT, órdenes MRP y valoración de inventarios.',
+        feeds: 'Ventas · Compras y Abastecimiento',
+        pillClass: 'pill-blue',
+      },
+      {
+        name: 'MES · Siemens Opcenter',
+        modules: 'Captura PLC / SCADA + SAP PP',
+        docs: 'Telemetría de máquinas en línea (horas activas, paradas, setups), órdenes de producción y avance MPS.',
+        feeds: 'Línea de Producción',
+        pillClass: 'pill-blue',
+      },
+      {
+        name: 'QMS · Norma OTAN AQAP-2110',
+        modules: 'SAP QM · Ensayos END · Polígonos Balísticos',
+        docs: 'Reportes de inspección por visión/ultrasonido/rayos X y actas oficiales GQAR de aceptación estatal.',
+        feeds: 'Calidad',
+        pillClass: 'pill-green',
+      },
+      {
+        name: 'EHS · SAP EHS Management',
+        modules: 'SAP EHS + Control Horario SAP SuccessFactors',
+        docs: 'Auditorías de riesgo ATEX, cierre de hallazgos en SLA, horas-hombre trabajadas y partes ISO 45001.',
+        feeds: 'Seguridad',
+        pillClass: 'pill-amber',
+      },
+    ],
+  },
 };

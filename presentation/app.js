@@ -42,6 +42,8 @@
     { id: 'kpi-explorer', tag: 'Detalle por Sector', short: 'Detalle por Sector y KPI' },
     { id: 'stakeholders', tag: 'Gobierno del Dato', short: 'Stakeholders' },
     { id: 'kpi-map', tag: 'Resumen Ejecutivo', short: 'Mapa de los 10 KPIs' },
+    { id: 'data-arch', tag: 'Origen de Datos', short: 'Arquitectura de Datos' },
+    { id: 'etl-pipeline', tag: 'Integración en Vivo', short: 'Pipeline ETL' },
     { id: 'closing', tag: 'Conclusión', short: 'Cierre Ejecutivo' },
   ];
 
@@ -877,11 +879,117 @@
     `;
   }
 
+  function renderSlideDataArchitecture() {
+    const arch = D.dataArchitecture;
+    return `
+      <div class="slide-inner">
+        <div class="slide-header is-compact anim-rise">
+          <span class="slide-kicker">08 · Origen y Justificación de Datos</span>
+          <h2 class="slide-title font-display">Arquitectura de Datos y Estrategia de Abastecimiento</h2>
+          <p class="slide-subtitle" style="max-width: none">
+            ${esc(arch.hybridPrinciple)}
+          </p>
+        </div>
+
+        <div class="closed-loop-bar anim-rise delay-1" style="margin-bottom: 12px; padding: 10px 15px; flex-wrap: nowrap">
+          <div style="font-size: 12.5px; color: var(--text-primary)">
+            <strong>Principio Híbrido:</strong>
+            <span style="color: var(--text-secondary)">
+              Reconcilia la contabilidad real 9M/FY25 con simulación calibrada donde la información fabril es reservada.
+            </span>
+          </div>
+          <span class="pill pill-blue font-mono" style="white-space: nowrap">2 Capas · Trazable</span>
+        </div>
+
+        <div class="grid-2 anim-rise delay-2">
+          ${arch.layers
+        .map(function (layer) {
+          return `
+                <div class="rhm-card" style="padding: 15px 17px; display: flex; flex-direction: column; gap: 8px">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px">
+                    <div>
+                      <div class="stat-label">${esc(layer.level)}</div>
+                      <h3 class="font-display" style="margin: 3px 0 0; font-size: 18px">${esc(layer.title)}</h3>
+                    </div>
+                    <span class="pill ${esc(layer.pillClass)}" style="white-space: nowrap">${esc(layer.badge)}</span>
+                  </div>
+
+                  <div class="kv-row" style="padding: 6px 0; font-size: 12px">
+                    <span class="kv-key">Fuentes</span>
+                    <span style="color: var(--text-secondary)">${esc(layer.sources)}</span>
+                  </div>
+                  <div class="kv-row" style="padding: 6px 0; font-size: 12px">
+                    <span class="kv-key">Alcance</span>
+                    <span style="color: var(--text-primary)">${esc(layer.scope)}</span>
+                  </div>
+                  <div class="kv-row" style="padding: 6px 0; font-size: 12px">
+                    <span class="kv-key">Justificación</span>
+                    <span style="color: var(--text-secondary)">${esc(layer.justification)}</span>
+                  </div>
+                </div>
+              `;
+        })
+        .join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSlideEtlPipeline() {
+    const etl = D.etlPipeline;
+    return `
+      <div class="slide-inner">
+        <div class="slide-header is-compact anim-rise">
+          <span class="slide-kicker">09 · Integración en Vivo</span>
+          <h2 class="slide-title font-display">Flujo de Integración y Sistemas Empresariales Origen (Pipeline ETL)</h2>
+          <p class="slide-subtitle" style="max-width: none">
+            Software empresarial, telemetría de planta y documentos oficiales que alimentarían el tablero de forma continua en producción.
+          </p>
+        </div>
+
+        <div class="flow-chain anim-rise delay-1" style="margin-bottom: 12px">
+          ${etl.flowSteps
+        .map(function (n, i) {
+          const arrow = i < etl.flowSteps.length - 1 ? '<span class="flow-arrow" aria-hidden="true">→</span>' : '';
+          return `
+                <div class="flow-node ${n.accent ? 'is-accent' : ''}">
+                  <div class="font-mono" style="font-size: 10px; font-weight: 700; color: var(--accent-blue)">${n.step}</div>
+                  <div style="font-size: 13px; font-weight: 700">${esc(n.label)}</div>
+                  <div style="font-size: 11px; color: var(--text-muted)">${esc(n.desc)}</div>
+                </div>
+                ${arrow}
+              `;
+        })
+        .join('')}
+        </div>
+
+        <div class="grid-2 anim-rise delay-2">
+          ${etl.systems
+        .map(function (sys) {
+          return `
+                <div class="rhm-card" style="padding: 13px 15px; display: flex; flex-direction: column; gap: 6px">
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+                    <strong class="font-display" style="font-size: 16px">${esc(sys.name)}</strong>
+                    <span class="pill ${esc(sys.pillClass)}" style="font-size: 10.5px">${esc(sys.feeds)}</span>
+                  </div>
+                  <div class="font-mono" style="font-size: 11px; color: var(--accent-blue)">${esc(sys.modules)}</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4">
+                    <strong style="color: var(--text-primary)">Documentos / Registros:</strong> ${esc(sys.docs)}
+                  </div>
+                </div>
+              `;
+        })
+        .join('')}
+        </div>
+      </div>
+    `;
+  }
+
   function renderSlideClosing() {
     return `
       <div class="slide-inner">
         <div class="rhm-card anim-rise" style="padding: 26px; max-width: 980px; margin: 0 auto">
-          <span class="slide-kicker">08 · Cierre Ejecutivo</span>
+          <span class="slide-kicker">10 · Cierre Ejecutivo</span>
           <h2 class="slide-title font-display" style="margin-top: 10px">
             Conclusión: Control Operacional para Escalar sin Desvíos
           </h2>
@@ -937,6 +1045,8 @@
     renderSlideKpiExplorer,
     renderSlideStakeholders,
     renderSlideKpiMap,
+    renderSlideDataArchitecture,
+    renderSlideEtlPipeline,
     renderSlideClosing,
   ];
 
