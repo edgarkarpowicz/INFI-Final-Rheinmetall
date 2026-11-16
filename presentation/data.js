@@ -8,24 +8,19 @@ window.PRESENTATION_DATA = {
 
   timeline: [
     {
-      era: '1889–1918',
-      title: 'Fundación',
-      fact: '13 de abril de 1889 en Düsseldorf por Heinrich Ehrhardt. En 1896 revoluciona la artillería con el primer cañón de retroceso variable hidráulico.',
+      era: '1889-1918',
+      title: 'Fundación y Primeros Años',
+      fact: '13 de abril de 1889 en Düsseldorf por Heinrich Ehrhardt. En 1896 revoluciona la artillería con el primer cañón de retroceso variable hidráulico y consolida su base siderúrgica.',
     },
     {
-      era: '1919–1989',
-      title: 'Posguerra',
-      fact: 'Tras diversificación civil (locomotoras, máquinas), en 1956 equipa a la Bundeswehr y crea el cañón de ánima lisa 120 mm (Leopard 2 / M1 Abrams).',
+      era: '1919-1989',
+      title: 'Expansión, Conflictos Mundiales y Reconstrucción',
+      fact: 'Tras diversificación y reconstrucción industrial en posguerra, en 1956 reequipa a la Bundeswehr y desarrolla el cañón de ánima lisa 120 mm adoptado por tanques OTAN.',
     },
     {
-      era: '1990–2021',
-      title: 'Consolidación Tecnológica',
-      fact: 'Adquisiciones estratégicas: Pierburg, Oerlikon Contraves (defensa aérea) y Expal Systems (municiones), conformando un grupo integrado.',
-    },
-    {
-      era: '2022–2026',
-      title: 'DAX 40 & Escala Global',
-      fact: 'Ingresa al DAX 40 en 2023. Supera 31.000 colaboradores en +130 plantas globales y acumula €78.000M de cartera contratada.',
+      era: '1990-Actualidad',
+      title: 'Modernización y Consolidación Tecnológica',
+      fact: 'Adquisiciones estratégicas (Pierburg, Oerlikon Contraves, Expal Systems), ingreso al DAX 40 en 2023 y escala global actual con +31.000 colaboradores y €78.000M de cartera.',
     },
   ],
 
