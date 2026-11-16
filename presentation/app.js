@@ -39,12 +39,16 @@
     { id: 'defense', tag: 'Estructura Operativa', short: 'División Defensa' },
     { id: 'context', tag: 'Contexto Estratégico', short: 'Antes vs. Después Ucrania' },
     { id: 'utility', tag: 'Propuesta de Valor', short: 'Justificación del Tablero' },
-    { id: 'stakeholders', tag: 'Gobierno del Dato', short: 'Stakeholders (SRS §5)' },
-    { id: 'architecture', tag: 'Alcance & ETL', short: 'Alcance y Obtención de Datos' },
+    { id: 'kpi-explorer', tag: 'Detalle por Sector', short: 'Detalle por Sector y KPI' },
+    { id: 'stakeholders', tag: 'Gobierno del Dato', short: 'Stakeholders' },
     { id: 'kpi-map', tag: 'Resumen Ejecutivo', short: 'Mapa de los 10 KPIs' },
-    { id: 'kpi-explorer', tag: 'Detalle por Sector', short: 'Explorador 10 KPIs SMART' },
-    { id: 'closing', tag: 'Conclusión', short: 'Del Dato al Control' },
+    { id: 'closing', tag: 'Conclusión', short: 'Cierre Ejecutivo' },
   ];
+
+  function slideIndexById(id) {
+    const idx = SLIDES.findIndex(function (s) { return s.id === id; });
+    return idx >= 0 ? idx : 0;
+  }
 
   function parseInitialSlide() {
     const m = window.location.hash.match(/slide=(\d+)/);
@@ -60,7 +64,6 @@
   const state = {
     slideIndex: parseInitialSlide(),
     eraIndex: 0,
-    contextMode: 'dual',
     stakeholderIndex: 0,
     sectorIndex: 0,
     fleetVisible: true,
@@ -77,7 +80,6 @@
 
   const els = {
     slideMount: document.getElementById('slideMount'),
-    hudSlideTitle: document.getElementById('hudSlideTitle'),
     progressFill: document.getElementById('progressFill'),
     miniTank: document.getElementById('miniTank'),
     slideDots: document.getElementById('slideDots'),
@@ -101,6 +103,8 @@
     boxerCallout: document.getElementById('boxerCallout'),
     overviewModal: document.getElementById('overviewModal'),
     overviewGrid: document.getElementById('overviewGrid'),
+    sectorDetailModal: document.getElementById('sectorDetailModal'),
+    sectorDetailBody: document.getElementById('sectorDetailBody'),
   };
 
   function esc(value) {
@@ -117,12 +121,6 @@
     if (lower.includes('óptimo')) return 'pill-green';
     if (lower.includes('crít')) return 'pill-red';
     return 'pill-amber';
-  }
-
-  function colorToPill(color) {
-    if (color === 'green') return 'pill-green';
-    if (color === 'amber') return 'pill-amber';
-    return 'pill-blue';
   }
 
   function fireTankSalute(customMsg) {
@@ -377,7 +375,7 @@
       <div class="slide-inner">
         <div class="slide-header is-compact anim-rise">
           <span class="slide-kicker">02 · División Defensa</span>
-          <h2 class="slide-title font-display">Estructura Operativa de la División Defensa (9M 2026)</h2>
+          <h2 class="slide-title font-display">Estructura Operativa de la División Defensa</h2>
           <p class="slide-subtitle">
             Tres verticales estratégicas agrupadas bajo el Grupo Consolidado, desde munición química de alta cadencia hasta sensores tácticos.
           </p>
@@ -404,23 +402,7 @@
             <div>
               <div class="stat-label">Margen Op.</div>
               <div class="font-mono" style="font-size: 15px; font-weight: 700; margin-top: 2px">
-                ${esc(g.margen)} <span style="font-size: 11px; color: var(--text-muted); font-weight: 400">(${esc(g.ebit)})</span>
-              </div>
-            </div>
-            <div>
-              <div class="stat-label">Book-to-Bill</div>
-              <div class="font-mono" style="font-size: 15px; font-weight: 700; color: var(--status-green-text); margin-top: 2px">${esc(g.btb)}</div>
-            </div>
-            <div>
-              <div class="stat-label">OEE · FPY</div>
-              <div class="font-mono" style="font-size: 13.5px; font-weight: 700; margin-top: 3px">${esc(g.oee)} · ${esc(g.fpy)}</div>
-            </div>
-            <div>
-              <div class="stat-label">Estado KPIs (10)</div>
-              <div class="font-mono" style="font-size: 12px; font-weight: 700; margin-top: 4px; white-space: nowrap">
-                <span style="color: var(--status-green-text)">${g.counts.optimo} Ópt.</span> ·
-                <span style="color: var(--status-yellow-text)">${g.counts.preventivo} Prev.</span> ·
-                <span style="color: var(--status-red-text)">${g.counts.critico} Crít.</span>
+                ${esc(g.margen)} <span style="font-size: 11px; color: var(--text-muted); font-weight: 400">(${esc(g.ebit)} EBIT)</span>
               </div>
             </div>
           </div>
@@ -523,21 +505,6 @@
   }
 
   function renderSlide3Context() {
-    const mode = state.contextMode;
-    let bodyHtml = '';
-    if (mode === 'before') {
-      bodyHtml = `<div style="max-width: 780px">${renderContextCard(D.contextCompare.before, false)}</div>`;
-    } else if (mode === 'after') {
-      bodyHtml = `<div style="max-width: 780px">${renderContextCard(D.contextCompare.after, true)}</div>`;
-    } else {
-      bodyHtml = `
-        <div class="grid-2">
-          ${renderContextCard(D.contextCompare.before, false)}
-          ${renderContextCard(D.contextCompare.after, true)}
-        </div>
-      `;
-    }
-
     return `
       <div class="slide-inner">
         <div class="slide-header is-compact anim-rise">
@@ -571,19 +538,10 @@
           </div>
         </div>
 
-        <div class="tab-bar anim-rise delay-1" style="margin-bottom: 10px">
-          <button class="tab-btn ${mode === 'dual' ? 'is-active' : ''}" type="button" data-ctx="dual">
-            Comparativa Lado a Lado
-          </button>
-          <button class="tab-btn ${mode === 'before' ? 'is-active' : ''}" type="button" data-ctx="before">
-            Solo Antes (1991–2022)
-          </button>
-          <button class="tab-btn ${mode === 'after' ? 'is-active' : ''}" type="button" data-ctx="after">
-            Solo Después (2022–2026)
-          </button>
+        <div class="grid-2 anim-rise delay-2">
+          ${renderContextCard(D.contextCompare.before, false)}
+          ${renderContextCard(D.contextCompare.after, true)}
         </div>
-
-        <div class="anim-rise delay-2">${bodyHtml}</div>
       </div>
     `;
   }
@@ -591,7 +549,7 @@
   function renderSlide4Utility() {
     const loopSteps = [
       { step: '01', label: 'Objetivo (OE)', desc: 'Meta estratégica anual' },
-      { step: '02', label: 'Métrica Real', desc: 'Dato ETL auditado' },
+      { step: '02', label: 'Dato Real', desc: 'Señal operativa medida' },
       { step: '03', label: 'Meta SMART', desc: 'Semáforo Verde/Am./Rojo' },
       { step: '04', label: 'Decisión', desc: 'CapEx · SMED · Stock · EHS', accent: true },
     ];
@@ -601,8 +559,8 @@
         <div class="slide-header is-compact anim-rise">
           <span class="slide-kicker">04 · Propuesta de Valor</span>
           <h2 class="slide-title font-display">¿Por Qué Necesita Rheinmetall este Tablero y Qué Resuelve?</h2>
-          <p class="slide-subtitle">
-            Con €78.000M de backlog, gestionar "a ojo" falla: el tablero conecta demanda comercial con capacidad fabril y caja.
+          <p class="slide-subtitle" style="max-width: none">
+            Cada sector enfrenta una tensión concreta al escalar producción. Hacé clic en cualquier tarjeta para ver los KPIs implementados.
           </p>
         </div>
 
@@ -626,18 +584,29 @@
           ${D.justifications
             .map(function (item, idx) {
               return `
-                <div class="rhm-card justif-item" style="padding: 13px 15px">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px">
-                    <span class="pill pill-blue">${esc(item.area)}</span>
-                    <span class="font-mono" style="font-size: 11px; color: var(--text-muted)">0${idx + 1}</span>
+                <button
+                  class="rhm-card justif-item"
+                  type="button"
+                  data-justif-sector="${esc(item.sectorId)}"
+                  style="padding: 13px 15px"
+                >
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px">
+                      <span class="pill pill-blue">${esc(item.area)}</span>
+                      <span class="font-mono" style="font-size: 11px; color: var(--text-muted)">0${idx + 1}</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--status-red-text); margin-bottom: 6px; line-height: 1.38">
+                      <strong>Tensión / Problema:</strong> ${esc(item.tension)}
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.42">
+                      <strong style="color: var(--text-primary)">Utilidad:</strong> ${esc(item.utility)}
+                    </div>
                   </div>
-                  <div style="font-size: 12px; color: var(--status-red-text); margin-bottom: 5px; line-height: 1.38">
-                    <strong>Tensión:</strong> ${esc(item.tension)}
+                  <div class="justif-foot">
+                    <span>2 KPIs implementados en este sector</span>
+                    <span>Ver detalle →</span>
                   </div>
-                  <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4">
-                    <strong style="color: var(--text-primary)">Utilidad:</strong> ${esc(item.utility)}
-                  </div>
-                </div>
+                </button>
               `;
             })
             .join('')}
@@ -646,15 +615,15 @@
     `;
   }
 
-  function renderSlide5Stakeholders() {
+  function renderSlideStakeholders() {
     const active = D.stakeholders[state.stakeholderIndex] || D.stakeholders[0];
     return `
       <div class="slide-inner">
         <div class="slide-header is-compact anim-rise">
-          <span class="slide-kicker">05 · Actores del Sistema</span>
+          <span class="slide-kicker">06 · Actores del Sistema</span>
           <h2 class="slide-title font-display">Stakeholders: Quién Decide con Cada Señal</h2>
           <p class="slide-subtitle">
-            Cinco perfiles de decisión mapeados al tablero (SRS §5). Seleccioná cada rol para inspeccionar su autoridad e impacto.
+            Cinco perfiles clave mapeados al tablero (SRS §5). Seleccioná cada rol para ver qué KPIs monitorea por sector y qué decide.
           </p>
         </div>
 
@@ -682,34 +651,31 @@
         </div>
 
         <div class="rhm-card card-highlight anim-rise delay-2" style="padding: 16px 18px">
-          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px">
-            <div>
-              <span class="stat-label">${esc(active.level)} · Sector: ${esc(active.focus)}</span>
-              <h3 class="font-display" style="margin: 2px 0 0; font-size: 19px">${esc(active.role)}</h3>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 6px">
-              ${active.kpis
-                .map(function (k) {
-                  return `<span class="pill pill-green font-mono">${esc(k)}</span>`;
-                })
-                .join('')}
-            </div>
+          <div style="margin-bottom: 10px">
+            <span class="stat-label">${esc(active.level)} · Foco: ${esc(active.focus)}</span>
+            <h3 class="font-display" style="margin: 2px 0 0; font-size: 19px">${esc(active.role)}</h3>
           </div>
 
-          <div class="flow-chain">
-            <div class="flow-node">
-              <div class="stat-label">1. Señal Monitoreada</div>
-              <div style="font-size: 12.5px; font-weight: 600; margin-top: 3px">${esc(active.focus)}</div>
+          <div class="flow-chain" style="align-items: stretch">
+            <div class="flow-node" style="flex: 1.55 1 260px">
+              <div class="stat-label">1. Qué Monitorea (KPIs por Sector)</div>
+              <ul class="stakeholder-kpi-list">
+                ${active.monitoredBySector
+                  .map(function (entry) {
+                    return `<li><strong>${esc(entry.sector)}:</strong> ${esc(entry.detail)}</li>`;
+                  })
+                  .join('')}
+              </ul>
             </div>
             <span class="flow-arrow" aria-hidden="true">→</span>
-            <div class="flow-node is-accent" style="flex: 2 1 280px">
+            <div class="flow-node is-accent" style="flex: 1.35 1 240px">
               <div class="stat-label" style="color: var(--accent-blue)">2. Decisión Operativa / Estratégica</div>
-              <div style="font-size: 12.5px; margin-top: 3px; color: var(--text-primary); line-height: 1.4">${esc(active.decision)}</div>
+              <div style="font-size: 12.5px; margin-top: 5px; color: var(--text-primary); line-height: 1.42">${esc(active.decision)}</div>
             </div>
             <span class="flow-arrow" aria-hidden="true">→</span>
-            <div class="flow-node">
+            <div class="flow-node" style="flex: 0.9 1 170px">
               <div class="stat-label">3. Impacto Esperado</div>
-              <div style="font-size: 12.5px; font-weight: 700; color: var(--status-green-text); margin-top: 3px">${esc(active.impact)}</div>
+              <div style="font-size: 12.5px; font-weight: 700; color: var(--status-green-text); margin-top: 5px; line-height: 1.38">${esc(active.impact)}</div>
             </div>
           </div>
         </div>
@@ -717,94 +683,7 @@
     `;
   }
 
-  function renderSlide6Architecture() {
-    return `
-      <div class="slide-inner">
-        <div class="slide-header is-compact anim-rise">
-          <span class="slide-kicker">06 · Alcance &amp; Fuentes</span>
-          <h2 class="slide-title font-display">Alcance del Sistema y Obtención de Datos</h2>
-          <p class="slide-subtitle">
-            Cobertura End-to-End (5 sectores × Leading/Lagging) alimentada mediante un modelo híbrido de 3 capas desde sistemas ERP/MES reales.
-          </p>
-        </div>
-
-        <div class="grid-2 anim-rise delay-1">
-          <div class="rhm-card" style="padding: 15px 16px">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px">
-              <h3 class="font-display" style="margin: 0; font-size: 16.5px">Alcance Dual (Estratégico + Operativo)</h3>
-              <span class="pill pill-blue font-mono">10 KPIs SMART</span>
-            </div>
-            <div class="rhm-subcard" style="margin-bottom: 9px">
-              <div style="display: flex; justify-content: space-between; align-items: center">
-                <strong style="font-size: 12.5px; color: var(--accent-blue)">KPI Estratégico (C-Level)</strong>
-                <span class="pill pill-blue font-mono" style="font-size: 10px">KPI-1.1 · KPI-1.2</span>
-              </div>
-              <p style="margin: 4px 0 0; font-size: 12px; color: var(--text-secondary); line-height: 1.42">
-                Mide sostenibilidad financiera: expansión neta de backlog (<strong>Book-to-Bill</strong>) y rentabilidad (<strong>EBIT %</strong>).
-              </p>
-            </div>
-            <div class="rhm-subcard" style="margin-bottom: 9px">
-              <div style="display: flex; justify-content: space-between; align-items: center">
-                <strong style="font-size: 12.5px; color: var(--status-green-text)">Indicadores Operativos (4 Sectores Fabriles)</strong>
-                <span class="pill pill-green font-mono" style="font-size: 10px">8 KPIs</span>
-              </div>
-              <p style="margin: 4px 0 0; font-size: 12px; color: var(--text-secondary); line-height: 1.42">
-                Explican causa raíz en piso de planta: <strong>OEE, MPS, FPY, GQAR, DOS, OTIF, Cierre EHS y LTIFR</strong>,
-                equilibrando señales predictivas (<span class="font-mono">Leading</span>) y de resultado (<span class="font-mono">Lagging</span>).
-              </p>
-            </div>
-            <div class="rhm-subcard" style="font-size: 11.5px; color: var(--text-muted)">
-              <strong>Granularidad:</strong> Grupo Consolidado + 3 Divisiones · Vistas Mensual, Q1–Q4, 9M Real y FY26.
-            </div>
-          </div>
-
-          <div class="rhm-card" style="padding: 15px 16px">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px">
-              <h3 class="font-display" style="margin: 0; font-size: 16.5px">Pipeline ETL &amp; Modelo Híbrido</h3>
-              <span class="pill pill-green font-mono">Trazable</span>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 8px">
-              ${D.dataModel.etlSystems
-                .map(function (sys) {
-                  return `
-                    <div class="rhm-subcard" style="padding: 7px 10px">
-                      <span class="pill ${colorToPill(sys.color)}" style="font-size: 10.5px">${esc(sys.name)}</span>
-                      <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px">${esc(sys.scope)}</div>
-                    </div>
-                  `;
-                })
-                .join('')}
-            </div>
-
-            <div style="text-align: center; font-size: 11px; color: var(--accent-blue); font-weight: 700; margin-bottom: 7px">
-              ▼ Ingesta y Calibración Mensual (3 Capas) ▼
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 6px">
-              ${D.dataModel.layers
-                .map(function (l) {
-                  return `
-                    <div class="rhm-subcard" style="padding: 7px 10px">
-                      <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px">
-                        <strong style="font-size: 12px">${esc(l.layer)}</strong>
-                        <span class="pill pill-blue" style="font-size: 9.5px">${esc(l.badge)}</span>
-                      </div>
-                      <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px; line-height: 1.35">
-                        ${esc(l.detail)}
-                      </div>
-                    </div>
-                  `;
-                })
-                .join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function renderSlide7KpiMap() {
+  function renderSlideKpiMap() {
     const rows = [];
     D.sectorsKpis.forEach(function (sec, secIdx) {
       sec.kpis.forEach(function (kpi) {
@@ -871,13 +750,13 @@
     `;
   }
 
-  function renderSlide8KpiExplorer() {
+  function renderSlideKpiExplorer() {
     const sector = D.sectorsKpis[state.sectorIndex] || D.sectorsKpis[0];
     return `
       <div class="slide-inner">
         <div class="slide-header is-compact anim-rise">
           <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px">
-            <span class="slide-kicker">08 · Explorador Técnico (${esc(sector.objetivoId)})</span>
+            <span class="slide-kicker">05 · Explorador Técnico (${esc(sector.objetivoId)})</span>
             <div style="display: flex; gap: 6px">
               <button class="hud-btn" type="button" data-sector-step="-1" title="Sector anterior (↑)">◀ Sector</button>
               <button class="hud-btn" type="button" data-sector-step="1" title="Siguiente sector (↓)">Sector ▶</button>
@@ -970,36 +849,35 @@
     `;
   }
 
-  function renderSlide9Closing() {
+  function renderSlideClosing() {
     return `
       <div class="slide-inner">
-        <div class="rhm-card anim-rise" style="padding: 26px; max-width: 960px; margin: 0 auto">
-          <span class="slide-kicker">09 · Cierre Ejecutivo</span>
+        <div class="rhm-card anim-rise" style="padding: 26px; max-width: 980px; margin: 0 auto">
+          <span class="slide-kicker">08 · Cierre Ejecutivo</span>
           <h2 class="slide-title font-display" style="margin-top: 10px">
-            Del Dato Fabril al Control Estratégico en Tiempo Real
+            Conclusión: Control Operacional para Escalar sin Desvíos
           </h2>
           <p class="slide-subtitle" style="margin-bottom: 16px">
-            Con €78.000M de cartera contratada, la ventaja competitiva de Rheinmetall AG ya no radica solo en captar pedidos,
-            sino en sincronizar planta, calidad OTAN, supply chain crítico y seguridad ATEX bajo un mismo tablero.
+            El tablero convierte una cartera récord de €78.000M en decisiones diarias coordinadas entre dirección, planta, calidad y compras.
           </p>
 
           <div class="grid-3" style="margin-bottom: 18px">
             <div class="rhm-subcard">
-              <div class="stat-label">1. Visibilidad Unificada</div>
-              <div style="font-size: 12.5px; margin-top: 4px; color: var(--text-secondary)">
-                10 KPIs equilibrados (Leading + Lagging) desde el contrato OTAN hasta Unterlüß, Kassel y Murcia.
+              <div class="stat-label">Qué Resuelve</div>
+              <div style="font-size: 12.5px; margin-top: 5px; color: var(--text-secondary); line-height: 1.42">
+                Conecta las promesas comerciales con la capacidad real de línea, certificación OTAN y disponibilidad de insumos.
               </div>
             </div>
             <div class="rhm-subcard">
-              <div class="stat-label">2. Anticipación Accionable</div>
-              <div style="font-size: 12.5px; margin-top: 4px; color: var(--text-secondary)">
-                Cada alerta dispara un protocolo: CapEx, SMED, pre-certificación GQAR, Dual Sourcing o Stand-Down.
+              <div class="stat-label">Para Qué Es Útil</div>
+              <div style="font-size: 12.5px; margin-top: 5px; color: var(--text-secondary); line-height: 1.42">
+                Da a cada responsable alertas tempranas para actuar a tiempo: ampliar turnos, destrabar lotes o blindar proveedores.
               </div>
             </div>
             <div class="rhm-subcard">
-              <div class="stat-label">3. Anclaje Auditado</div>
-              <div style="font-size: 12.5px; margin-top: 4px; color: var(--text-secondary)">
-                Trazabilidad transparente entre reportes financieros 9M/FY 2026 reales y telemetría fabril calibrada.
+              <div class="stat-label">Valor para Rheinmetall</div>
+              <div style="font-size: 12.5px; margin-top: 5px; color: var(--text-secondary); line-height: 1.42">
+                Permite sostener la expansión a 3 turnos cumpliendo entregas, margen operativo y seguridad industrial.
               </div>
             </div>
           </div>
@@ -1028,12 +906,83 @@
     renderSlide2Defense,
     renderSlide3Context,
     renderSlide4Utility,
-    renderSlide5Stakeholders,
-    renderSlide6Architecture,
-    renderSlide7KpiMap,
-    renderSlide8KpiExplorer,
-    renderSlide9Closing,
+    renderSlideKpiExplorer,
+    renderSlideStakeholders,
+    renderSlideKpiMap,
+    renderSlideClosing,
   ];
+
+  function openSectorDetailModal(sectorId) {
+    if (!els.sectorDetailModal || !els.sectorDetailBody) return;
+    const justif = D.justifications.find(function (j) { return j.sectorId === sectorId; });
+    const secIdx = D.sectorsKpis.findIndex(function (s) { return s.sectorId === sectorId; });
+    const sector = D.sectorsKpis[secIdx >= 0 ? secIdx : 0];
+    if (!sector) return;
+
+    els.sectorDetailBody.innerHTML = `
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px">
+        <div>
+          <span class="slide-kicker">KPIs Implementados · Sector</span>
+          <h2 class="font-display" style="margin: 6px 0 4px; font-size: 21px">${esc(justif ? justif.area : sector.sectorName)}</h2>
+          <p style="margin: 0; font-size: 12.5px; color: var(--text-secondary)">
+            ${esc(justif ? justif.utility : sector.objetivo)}
+          </p>
+        </div>
+        <button class="hud-btn" type="button" data-close-detail="true">Cerrar (Esc)</button>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 12px">
+        ${sector.kpis
+          .map(function (k) {
+            const isLead = k.type === 'Leading';
+            return `
+              <div class="rhm-subcard" style="display: flex; flex-direction: column; gap: 7px">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px">
+                  <span class="pill ${isLead ? 'pill-blue' : 'pill-amber'} font-mono" style="font-size: 10.5px">
+                    ${esc(k.type)} · ${isLead ? 'Predictivo' : 'Resultado'}
+                  </span>
+                  <span class="font-mono" style="font-size: 11.5px; font-weight: 700; color: var(--accent-blue)">
+                    Meta ${esc(k.meta)}
+                  </span>
+                </div>
+                <h3 class="font-display" style="margin: 0; font-size: 16.5px">${esc(k.name)}</h3>
+                <p style="margin: 0; font-size: 12px; color: var(--text-secondary); line-height: 1.42">
+                  ${esc(k.purpose)}
+                </p>
+                <div class="kv-row" style="padding: 5px 0; font-size: 11.5px">
+                  <span class="kv-key">Qué responde</span>
+                  <span style="font-style: italic">${esc(k.question)}</span>
+                </div>
+                <div class="kv-row" style="padding: 5px 0; font-size: 11.5px">
+                  <span class="kv-key">Responsable</span>
+                  <span style="font-weight: 600">${esc(k.stakeholder)}</span>
+                </div>
+                <div class="kv-row" style="padding: 5px 0; font-size: 11.5px">
+                  <span class="kv-key">Acción</span>
+                  <span>${esc(k.protocol)}</span>
+                </div>
+              </div>
+            `;
+          })
+          .join('')}
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px">
+        <button class="cta-primary" type="button" data-jump-sector="${secIdx >= 0 ? secIdx : 0}">
+          <span>Ver evolución en Explorador Técnico →</span>
+        </button>
+      </div>
+    `;
+
+    els.sectorDetailModal.classList.add('is-open');
+    els.sectorDetailModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeSectorDetailModal() {
+    if (!els.sectorDetailModal) return;
+    els.sectorDetailModal.classList.remove('is-open');
+    els.sectorDetailModal.setAttribute('aria-hidden', 'true');
+  }
 
   function renderDots() {
     els.slideDots.innerHTML = SLIDES.map(function (s, idx) {
@@ -1072,6 +1021,7 @@
   }
 
   function render() {
+    closeSectorDetailModal();
     const renderer = RENDERERS[state.slideIndex] || RENDERERS[0];
     els.slideMount.innerHTML = renderer();
     els.slideMount.scrollTop = 0;
@@ -1083,7 +1033,6 @@
     els.progressFill.style.width = pct.toFixed(1) + '%';
     els.miniTank.style.left = crawlerLeft.toFixed(1) + '%';
     els.slideCounter.textContent = String(state.slideIndex + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
-    els.hudSlideTitle.textContent = SLIDES[state.slideIndex].short + ' · FY 2026';
 
     els.btnPrev.disabled = state.slideIndex === 0;
     els.btnNext.disabled = state.slideIndex === total - 1;
@@ -1157,10 +1106,9 @@
       return;
     }
 
-    const ctxBtn = e.target.closest('[data-ctx]');
-    if (ctxBtn) {
-      state.contextMode = ctxBtn.getAttribute('data-ctx');
-      render();
+    const justifBtn = e.target.closest('[data-justif-sector]');
+    if (justifBtn) {
+      openSectorDetailModal(justifBtn.getAttribute('data-justif-sector'));
       return;
     }
 
@@ -1190,7 +1138,7 @@
     const openSecRow = e.target.closest('[data-open-sector]');
     if (openSecRow) {
       state.sectorIndex = Number(openSecRow.getAttribute('data-open-sector'));
-      goToSlide(8);
+      goToSlide(slideIndexById('kpi-explorer'));
       return;
     }
 
@@ -1209,6 +1157,21 @@
       fireArtillerySalvo();
     }
   });
+
+  if (els.sectorDetailModal) {
+    els.sectorDetailModal.addEventListener('click', function (e) {
+      if (e.target === els.sectorDetailModal || e.target.closest('[data-close-detail]')) {
+        closeSectorDetailModal();
+        return;
+      }
+      const jumpBtn = e.target.closest('[data-jump-sector]');
+      if (jumpBtn) {
+        state.sectorIndex = Number(jumpBtn.getAttribute('data-jump-sector'));
+        closeSectorDetailModal();
+        goToSlide(slideIndexById('kpi-explorer'));
+      }
+    });
+  }
 
   els.slideDots.addEventListener('click', function (e) {
     const dot = e.target.closest('[data-go-slide]');
@@ -1249,6 +1212,11 @@
   document.addEventListener('keydown', function (e) {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
 
+    if (els.sectorDetailModal && els.sectorDetailModal.classList.contains('is-open')) {
+      if (e.key === 'Escape') closeSectorDetailModal();
+      return;
+    }
+
     if (els.overviewModal.classList.contains('is-open')) {
       if (e.key === 'Escape' || e.key.toLowerCase() === 'm') toggleOverview(false);
       return;
@@ -1261,7 +1229,7 @@
     } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
       e.preventDefault();
       goToSlide(state.slideIndex - 1);
-    } else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && state.slideIndex === 8) {
+    } else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && SLIDES[state.slideIndex].id === 'kpi-explorer') {
       e.preventDefault();
       const len = D.sectorsKpis.length;
       state.sectorIndex = (state.sectorIndex + (e.key === 'ArrowDown' ? 1 : -1) + len) % len;

@@ -9,12 +9,12 @@ window.PRESENTATION_DATA = {
   timeline: [
     {
       era: '1889–1918',
-      title: 'Fundación & Retroceso Hidráulico',
+      title: 'Fundación',
       fact: '13 de abril de 1889 en Düsseldorf por Heinrich Ehrhardt. En 1896 revoluciona la artillería con el primer cañón de retroceso variable hidráulico.',
     },
     {
       era: '1919–1989',
-      title: 'Posguerra & Cañón 120 mm OTAN',
+      title: 'Posguerra',
       fact: 'Tras diversificación civil (locomotoras, máquinas), en 1956 equipa a la Bundeswehr y crea el cañón de ánima lisa 120 mm (Leopard 2 / M1 Abrams).',
     },
     {
@@ -59,17 +59,13 @@ window.PRESENTATION_DATA = {
     pedidos: '€19.100M',
     ebit: '€1.340M',
     margen: '16,00%',
-    btb: '2,28x',
-    oee: '79,11%',
-    fpy: '96,83%',
-    counts: { optimo: 3, preventivo: 7, critico: 0 },
   },
 
   divisions: [
     {
       name: 'Weapon & Ammunition',
       plants: 'Unterlüß (DE) · Murcia / Burgos (ES)',
-      role: 'Manufactura continua de alta cadencia y mayor margen.',
+      role: 'Ingeniería de sistemas de armamento, química energética y producción de munición.',
       products: 'Munición 155 mm y 120 mm, calibre medio, Skynex / Skyranger 30–35 y pólvoras.',
       clients: 'Bundeswehr, España, EE. UU., países bálticos y OTAN.',
       stats9m: { ventas: '€2.920M', pedidos: '€7.920M', margen: '19,87%', sharePct: 34.9 },
@@ -134,29 +130,34 @@ window.PRESENTATION_DATA = {
 
   justifications: [
     {
-      area: 'Ventas vs. Planta',
-      tension: 'Sobreprometer plazos o diluir margen durante el ramp-up.',
-      utility: 'Sincroniza Book-to-Bill contra capacidad real y gatilla alertas tempranas CapEx.',
+      sectorId: 'ventas',
+      area: 'Ventas',
+      tension: 'Firmar contratos récord sin visibilidad fabril arriesga sobreprometer plazos o perder rentabilidad por inflación.',
+      utility: 'Mide si la cartera crece al ritmo de la capacidad de entrega y protege que más volumen siga generando margen.',
     },
     {
-      area: 'Piso de Planta',
-      tension: 'Microparadas y setups frenan líneas automatizadas de 155 mm.',
-      utility: 'Descompone OEE (Disp. × Rend. × Cal.) antes de atrasar entregas MPS.',
+      sectorId: 'produccion',
+      area: 'Línea de Producción',
+      tension: 'Microparadas, setups lentos y cuellos de botella frenan las plantas que pasaron de 1 a 3 turnos.',
+      utility: 'Detecta dónde se pierde tiempo útil, velocidad o piezas buenas para corregir las máquinas antes de atrasar entregas.',
     },
     {
-      area: 'Certificación & Caja',
-      tension: 'Lotes terminados retenidos por inspectores GQAR bloquean su cobro.',
-      utility: 'Cruza estabilidad en línea (FPY) con tasa de rechazo GQAR para destrabar caja.',
+      sectorId: 'calidad',
+      area: 'Calidad',
+      tension: 'Defectos de fabricación o demoras en pruebas balísticas estatales impiden entregar lotes y frenan su cobro.',
+      utility: 'Controla que las piezas salgan conformes a la primera y evita retenciones en certificaciones OTAN para destrabar ingresos.',
     },
     {
-      area: 'Abastecimiento & Caja',
-      tension: 'Escasez de nitrocelulosa/aceros frente al costo de stock inmovilizado.',
-      utility: 'Controla banda óptima DOS (65–80 días) junto a puntualidad Tier-1 (OTIF).',
+      sectorId: 'compras',
+      area: 'Compras y Abastecimiento',
+      tension: 'La escasez de pólvoras, aceros y microchips choca contra el costo de inmovilizar capital en inventario.',
+      utility: 'Equilibra cuántos días de stock cubren la fábrica sin exceso de capital y exige puntualidad a proveedores clave.',
     },
     {
-      area: 'Seguridad EHS (ATEX)',
-      tension: 'Operación continua a 3 turnos con nuevos operarios y explosivos.',
-      utility: 'Exige cierre preventivo en plazo (SLA) antes de que escale a accidentes (LTIFR).',
+      sectorId: 'seguridad',
+      area: 'Seguridad',
+      tension: 'Trabajar 3 turnos con personal nuevo y material energético eleva el riesgo de incidentes o paradas forzadas.',
+      utility: 'Asegura que los desvíos se corrijan a tiempo antes de convertirse en accidentes y protege la continuidad operacional.',
     },
   ],
 
@@ -165,74 +166,63 @@ window.PRESENTATION_DATA = {
       id: 'coo',
       role: 'Director de Operaciones (COO)',
       level: 'Ejecutivo (C-Level)',
-      focus: 'Todos los sectores (10 KPIs)',
+      focus: 'Visión Integral del Grupo (5 Sectores)',
+      monitoredBySector: [
+        { sector: 'Ventas', detail: 'Ratio Book-to-Bill y Margen Operativo (EBIT)' },
+        { sector: 'Producción y Calidad', detail: 'Eficiencia Global (OEE), Cumplimiento MPS, First-Pass Yield y Rechazos GQAR' },
+        { sector: 'Abastecimiento y Seguridad', detail: 'Días de Inventario (DOS), Supplier OTIF, Cierre Proactivo EHS y LTIFR' },
+      ],
       decision: 'Sincroniza entrada de pedidos, capacidad fabril y liberación de lotes, reasignando CapEx ante cuellos de botella.',
       impact: 'Balance global CapEx · Volumen vs. Margen',
-      kpis: ['KPI-1.1 BtB', 'KPI-1.2 Margen', '+ 8 KPIs Operativos'],
     },
     {
       id: 'plant',
       role: 'Director de Planta (Plant Manager)',
       level: 'Gerencial / Planta',
-      focus: 'Producción & Seguridad',
+      focus: 'Línea de Producción y Seguridad',
+      monitoredBySector: [
+        { sector: 'Línea de Producción', detail: 'Eficiencia Global de Equipos (OEE) y Cumplimiento del Plan Maestro (MPS)' },
+        { sector: 'Seguridad', detail: 'Tasa de Cierre Proactivo EHS e Índice de Frecuencia de Accidentes (LTIFR)' },
+      ],
       decision: 'Monitorea OEE y adherencia MPS semanal en Unterlüß, Kassel y Murcia, activando SMED, mantenimiento y turnos extra.',
       impact: 'Estabilidad 3 turnos · Entregas a tiempo',
-      kpis: ['KPI-2.1 OEE', 'KPI-2.2 MPS', 'KPI-5.1 EHS', 'KPI-5.2 LTIFR'],
     },
     {
       id: 'qa',
       role: 'Gerente de Calidad (QA/QC)',
       level: 'Gerencial / Técnico',
-      focus: 'Calidad & Producción',
+      focus: 'Calidad y Línea de Producción',
+      monitoredBySector: [
+        { sector: 'Calidad', detail: 'First-Pass Yield (FPY) en ensayos no destructivos y Tasa de Rechazo/Demora GQAR' },
+        { sector: 'Línea de Producción', detail: 'Componente Calidad dentro de la Eficiencia Global de Equipos (OEE)' },
+      ],
       decision: 'Audita retrabajos en línea (visión/ultrasonido) y coordina con inspectores estatales GQAR bajo norma AQAP-2110.',
       impact: 'Menos retrabajo · Facturación sin trabas',
-      kpis: ['KPI-3.1 FPY', 'KPI-3.2 Rechazo GQAR', 'KPI-2.1 Calidad OEE'],
     },
     {
       id: 'supply',
       role: 'VP de Compras y Supply Chain',
       level: 'Ejecutivo / Táctico',
-      focus: 'Abastecimiento & Demanda',
+      focus: 'Compras, Abastecimiento y Demanda',
+      monitoredBySector: [
+        { sector: 'Compras y Abastecimiento', detail: 'Días de Inventario (DOS) y Puntualidad/Completitud Tier-1 (Supplier OTIF)' },
+        { sector: 'Ventas', detail: 'Ritmo de nuevos pedidos (Ratio Book-to-Bill) para anticipar compra de insumos' },
+      ],
       decision: 'Evalúa proveedores críticos (nitrocelulosa, aceros, microchips), activa Dual Sourcing y regula inventarios de seguridad.',
       impact: 'Cero paros por insumos · Capital sano',
-      kpis: ['KPI-4.1 DOS', 'KPI-4.2 OTIF', 'KPI-1.1 Presión Demanda'],
     },
     {
       id: 'ehs',
       role: 'Gerente Corporativo EHS',
       level: 'Gerencial / Normativo',
       focus: 'Seguridad Industrial',
+      monitoredBySector: [
+        { sector: 'Seguridad', detail: 'Tasa de Cierre Proactivo de Riesgos ATEX/EHS dentro de SLA y Frecuencia de Accidentes (LTIFR)' },
+      ],
       decision: 'Vigila accidentabilidad ISO 45001 y ordena cierre inmediato de hallazgos ATEX o Safety Stand-Down al cruzar umbrales.',
       impact: 'Cultura Cero Daño · Continuidad operacional',
-      kpis: ['KPI-5.1 Cierre EHS', 'KPI-5.2 LTIFR'],
     },
   ],
-
-  dataModel: {
-    layers: [
-      {
-        layer: 'Capa 1 · Datos Corporativos Reales',
-        badge: 'Auditados / Públicos',
-        detail: 'Annual Report FY25 & Q1–Q3 2026: Ventas (€8.376M 9M), Pedidos (€19.100M), Backlog (€78.000M), EBIT (16,0% 9M / 18,5% FY25).',
-      },
-      {
-        layer: 'Capa 2 · Modelo Híbrido Calibrado',
-        badge: 'Anclaje Real + Telemetría',
-        detail: 'Capital de trabajo real (DOS), reportes ESG de seguridad (LTIFR ISO 45001) y retenciones reales de lotes 155 mm.',
-      },
-      {
-        layer: 'Capa 3 · Industriales Simulados Calibrados',
-        badge: 'Telemetría de Planta',
-        detail: 'Variables internas no públicas calibradas: ciclo ideal 1,80 min, paradas/OEE, FPY por estación y OTIF por proveedor Tier-1.',
-      },
-    ],
-    etlSystems: [
-      { name: 'SAP S/4HANA', scope: 'SD · MM · FI/CO', color: 'blue' },
-      { name: 'Siemens Opcenter MES', scope: 'PLC/SCADA · SAP PP', color: 'blue' },
-      { name: 'QMS AQAP-2110', scope: 'END · Polígonos GQAR', color: 'green' },
-      { name: 'SAP EHS Management', scope: 'ATEX · SuccessFactors', color: 'amber' },
-    ],
-  },
 
   sectorsKpis: [
     {
