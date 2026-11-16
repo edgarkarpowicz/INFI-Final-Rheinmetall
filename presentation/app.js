@@ -472,18 +472,18 @@
 
   function renderContextCard(sideData, isAfter) {
     return `
-      <div class="rhm-card ${isAfter ? 'card-after' : 'card-before'}" style="padding: 15px 16px">
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 9px">
+      <div class="rhm-card ${isAfter ? 'card-after' : 'card-before'}" style="padding: 12px 14px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px">
           <span class="pill ${isAfter ? 'pill-green' : 'pill-amber'} font-mono">${esc(sideData.badge)}</span>
           <span style="font-size: 11px; font-weight: 600; color: var(--text-muted)">${esc(sideData.mood)}</span>
         </div>
-        <div class="grid-3" style="gap: 8px; margin-bottom: 9px">
+        <div class="grid-3" style="gap: 8px; margin-bottom: 8px">
           ${sideData.metrics
         .map(function (m) {
           return `
-                <div class="rhm-subcard" style="padding: 8px 10px">
+                <div class="rhm-subcard" style="padding: 7px 9px">
                   <div class="stat-label">${esc(m.label)}</div>
-                  <div class="font-mono" style="font-size: 13px; font-weight: 700; margin-top: 2px; color: ${isAfter ? 'var(--accent-blue)' : 'var(--text-primary)'
+                  <div class="font-mono" style="font-size: 12.5px; font-weight: 700; margin-top: 2px; color: ${isAfter ? 'var(--accent-blue)' : 'var(--text-primary)'
             }">
                     ${esc(m.value)}
                   </div>
@@ -492,7 +492,7 @@
         })
         .join('')}
         </div>
-        <ul class="bullet-clean" style="gap: 5px; font-size: 12.5px">
+        <ul class="bullet-clean" style="gap: 4px; font-size: 12px; margin-top: 4px">
           ${sideData.bullets
         .map(function (b) {
           return `<li>${esc(b)}</li>`;
@@ -509,12 +509,12 @@
         <div class="slide-header is-compact anim-rise">
           <span class="slide-kicker">03 · Quiebre Geopolítico</span>
           <h2 class="slide-title font-display">Contexto Actual: Antes vs. Después de Ucrania (Zeitenwende)</h2>
-          <p class="slide-subtitle">
+          <p class="slide-subtitle" style="max-width: none">
             Febrero de 2022 invirtió el problema central: de competir por presupuestos bajos a escalar plantas a 3 turnos.
           </p>
         </div>
 
-        <div class="rhm-card anim-rise delay-1" style="padding: 12px 16px; margin-bottom: 12px">
+        <div class="rhm-card anim-rise delay-1" style="padding: 10px 15px; margin-bottom: 10px">
           <div class="grid-2" style="gap: 16px">
             ${D.contextCompare.scaleBars
         .map(function (bar) {
@@ -537,9 +537,33 @@
           </div>
         </div>
 
-        <div class="grid-2 anim-rise delay-2">
+        <div class="grid-2 anim-rise delay-2" style="margin-bottom: 10px">
           ${renderContextCard(D.contextCompare.before, false)}
           ${renderContextCard(D.contextCompare.after, true)}
+        </div>
+
+        <div class="rhm-card anim-rise delay-3" style="padding: 11px 15px">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px">
+            <span class="stat-label" style="color: var(--status-red-text)">Tensiones Operativas Reales (2025–2026)</span>
+            <span style="font-size: 11px; color: var(--text-muted)">Por qué escalar demanda exige control diario</span>
+          </div>
+          <div class="grid-4">
+            ${(D.contextCompare.tensions2026 || [])
+        .map(function (t) {
+          return `
+                  <div class="rhm-subcard" style="padding: 8px 10px">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 4px">
+                      <strong style="font-size: 12px; color: var(--text-primary)">${esc(t.title)}</strong>
+                      <span class="pill pill-red" style="font-size: 9.5px; padding: 1px 7px">${esc(t.tag)}</span>
+                    </div>
+                    <div style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.35">
+                      ${esc(t.detail)}
+                    </div>
+                  </div>
+                `;
+        })
+        .join('')}
+          </div>
         </div>
       </div>
     `;

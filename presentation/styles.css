@@ -504,6 +504,12 @@ body {
   gap: 14px;
 }
 
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
 .grid-5 {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -790,7 +796,7 @@ body {
 }
 
 @media (max-width: 960px) {
-  .grid-3, .grid-5, .overview-grid {
+  .grid-3, .grid-4, .grid-5, .overview-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .grid-2 {
@@ -808,7 +814,7 @@ body {
 }
 
 @media (max-width: 640px) {
-  .grid-3, .grid-5, .overview-grid {
+  .grid-3, .grid-4, .grid-5, .overview-grid {
     grid-template-columns: 1fr;
   }
   .slide-viewport {

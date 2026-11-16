@@ -110,10 +110,9 @@ window.PRESENTATION_DATA = {
       badge: '2022 – 2026 · Zeitenwende ("Cambio de Época")',
       mood: 'Modo 2026: 3 turnos · ¡A producir!',
       bullets: [
-        'Fondo alemán €100.000M y meta OTAN ≥ 2% PIB triplican el backlog.',
-        'El cuello de botella pasó de VENDER contratos a PRODUCIR en masa.',
-        'Tensiones 2026: escasez de nitrocelulosa/aceros, +~€2.000M en stock y demoras GQAR.',
-        'Ingreso acelerado de operarios en plantas energéticas/ATEX eleva exigencia EHS.',
+        'Fondo alemán €100.000M y meta OTAN ≥ 2% PIB triplican la cartera contratada.',
+        'El cuello de botella pasó de VENDER contratos a PRODUCIR en masa a 3 turnos.',
+        'Escalamiento fabril acelerado (+10× en artillería 155 mm) y expansión de plantilla.',
       ],
       metrics: [
         { label: 'Backlog Q3 2026', value: '€78.000M (+218%)' },
@@ -121,6 +120,28 @@ window.PRESENTATION_DATA = {
         { label: 'Stock Extra', value: '+~€2.000M' },
       ],
     },
+    tensions2026: [
+      {
+        tag: 'Insumos',
+        title: 'Escasez de Materias Primas',
+        detail: 'Cuellos en nitrocelulosa, algodón linters, TNT/RDX, aceros balísticos especiales y microchips.',
+      },
+      {
+        tag: 'Caja',
+        title: 'Capital Inmovilizado',
+        detail: '~€2.000M extra en inventarios estratégicos para cubrir cadenas globales tensionadas.',
+      },
+      {
+        tag: 'Calidad',
+        title: 'Demora en Lotes Terminados',
+        detail: 'Cuellos de botella en pruebas balísticas y certificaciones militares exigidas por gobiernos.',
+      },
+      {
+        tag: 'Seguridad',
+        title: 'Presión Laboral a 3 Turnos',
+        detail: 'Miles de operarios nuevos expuestos a materiales energéticos y maquinaria pesada continua.',
+      },
+    ],
   },
 
   justifications: [
