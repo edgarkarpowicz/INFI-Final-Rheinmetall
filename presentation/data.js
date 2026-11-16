@@ -460,64 +460,117 @@ window.PRESENTATION_DATA = {
 
   dataArchitecture: {
     hybridPrinciple:
-      'Enfoque Híbrido: combina anclajes financieros y ESG reales divulgados por Rheinmetall AG con telemetría fabril simulada y calibrada donde existe secreto industrial.',
+      'Unimos cifras reales que Rheinmetall informa al mercado con datos de fábrica simulados y calibrados allí donde la operación interna es confidencial.',
+    bannerSummary:
+      'Los números financieros principales coinciden exactamente con los balances reales; el día a día interno de planta se simula con parámetros industriales reales.',
     layers: [
       {
         title: 'Capa de Datos Corporativos Reales',
-        level: 'Nivel Macro Financiero y ESG',
-        badge: 'Auditados / Públicos',
+        level: 'Nivel Macro Financiero, Sostenibilidad y Seguridad',
+        badge: 'Reales y Auditados',
         pillClass: 'pill-green',
-        sources: 'Annual Report FY 2025, Quarterly Statements Q1–Q3 2026, Investor Presentations y ESG Report (ISO 45001).',
-        scope: 'Ventas (€8.376M 9M), Nomination (€19.100M), EBIT (16,0% 9M / 18,5% FY25), Backlog (€78.000M), stock estratégico (~€2.000M), demoras GQAR y LTIFR base.',
-        justification: 'Fija la verdad contable consolidada del grupo para que la evolución mensual y proyección Q4 cuadren con los reportes oficiales.',
+        sources:
+          'Reportes Financieros Anuales y Trimestrales oficiales de Rheinmetall AG (2025–2026) e Informe Corporativo de Sostenibilidad y Seguridad Laboral.',
+        scope:
+          'Ventas facturadas (€8.376M), nuevos pedidos (€19.100M), resultado operativo, cartera contratada (€78.000M), stock estratégico extra (~€2.000M), demoras en entregas y accidentabilidad base.',
+        justification:
+          'Garantiza fidelidad contable: el tablero refleja la escala real del negocio y cuadra con lo que la empresa reporta públicamente.',
       },
       {
         title: 'Capa de Datos Industriales Simulados Calibrados',
-        level: 'Nivel Planta MES / QMS / SCM',
-        badge: 'Calibrados a Norma',
+        level: 'Nivel Planta, Calidad y Cadena de Abastecimiento',
+        badge: 'Simulados Calibrados',
         pillClass: 'pill-blue',
-        sources: 'Norma OTAN AQAP-2110, estándares europeos VDMA/SEMI y ramp-up real 2026 (70.000 a >700.000 proyectiles 155 mm/año).',
-        scope: 'Desagregación mensual y telemetría interna de planta: OEE (ciclo ideal 1,80 min), cumplimiento MPS, First-Pass Yield, OTIF Tier-1 y cierre ATEX.',
-        justification: 'Rheinmetall no publica datos PLC/SCADA ni entregas por proveedor por seguridad nacional y secreto industrial; calibrarlos conserva realismo operativo.',
+        sources:
+          'Normativa de calidad militar de la OTAN y estándares de manufactura europea, ajustados al crecimiento real de producción de proyectiles de 155 mm (de 70.000 a más de 700.000 unidades al año).',
+        scope:
+          'El detalle mensual dentro de las fábricas: eficiencia real de máquinas, cumplimiento del plan semanal, piezas aprobadas sin reproceso, puntualidad de proveedores y cierre preventivo de riesgos.',
+        justification:
+          'Por seguridad nacional y secreto industrial, Rheinmetall no divulga telemetría interna de sus líneas ni entregas por proveedor; calibrar estas señales mantiene el realismo operativo.',
       },
     ],
   },
 
   etlPipeline: {
     flowSteps: [
-      { step: '01', label: 'Sistemas y Documentos Origen', desc: 'SAP S/4HANA · Opcenter MES · QMS · EHS' },
-      { step: '02', label: 'Extracción y Validación (ETL)', desc: 'Limpieza y corte mensual/trimestral' },
-      { step: '03', label: 'Motor de Cálculo KPI', desc: 'Fórmulas SMART y semáforos' },
-      { step: '04', label: 'Tablero Ejecutivo', desc: 'Alertas y protocolos por sector', accent: true },
+      {
+        step: '01',
+        label: 'Sistemas y Documentos Origen',
+        desc: 'Software corporativo, sensores de planta y registros oficiales',
+      },
+      {
+        step: '02',
+        label: 'Extracción, Transformación y Carga',
+        desc: 'Recolección automática, limpieza y orden mensual',
+      },
+      {
+        step: '03',
+        label: 'Cálculo de Indicadores',
+        desc: 'Fórmulas de negocio y semáforos de alerta',
+      },
+      {
+        step: '04',
+        label: 'Tablero Ejecutivo',
+        desc: 'Visualización unificada para decidir por sector',
+        accent: true,
+      },
     ],
     systems: [
       {
-        name: 'ERP · SAP S/4HANA',
-        modules: 'SD · MM · FI/CO · SAP EWM · SAP Ariba',
-        docs: 'Contratos Rheinmetall Nomination, facturación, balances EBIT, órdenes MRP y valoración de inventarios.',
+        name: 'SAP S/4HANA (Gestión Empresarial Corporativa)',
+        shortCategory: 'Sistema Central de Negocio',
         feeds: 'Ventas · Compras y Abastecimiento',
         pillClass: 'pill-blue',
+        summary:
+          'Registra toda la actividad administrativa y comercial: contratos firmados, facturación, costos operativos, compras e inventario.',
+        fullSoftware:
+          'Planificación de Recursos Empresariales SAP S/4HANA con sus áreas de Ventas y Distribución, Gestión de Materiales, Finanzas y Contabilidad, Logística de Almacenes (SAP Extended Warehouse Management) y portal de compras con proveedores (SAP Ariba).',
+        documents:
+          'Contratos comerciales adjudicados, facturas emitidas a gobiernos, estados de resultados operativos, órdenes de compra a proveedores y valorización del stock en depósito.',
+        kpisFed:
+          'Ratio Book-to-Bill, Margen de Resultado Operativo, Días de Inventario disponibles y Puntualidad y Completitud de Proveedores.',
       },
       {
-        name: 'MES · Siemens Opcenter',
-        modules: 'Captura PLC / SCADA + SAP PP',
-        docs: 'Telemetría de máquinas en línea (horas activas, paradas, setups), órdenes de producción y avance MPS.',
+        name: 'Siemens Opcenter (Control y Ejecución de Planta)',
+        shortCategory: 'Software de Piso de Fábrica',
         feeds: 'Línea de Producción',
         pillClass: 'pill-blue',
+        summary:
+          'Conecta en tiempo real las máquinas y líneas de montaje para saber cuánto tiempo producen, a qué ritmo y qué volumen liberan.',
+        fullSoftware:
+          'Sistema de Ejecución de Manufactura Siemens Opcenter conectado a sensores y controladores automáticos industriales en cada máquina, sincronizado con Planificación de Producción en SAP.',
+        documents:
+          'Partes digitales por turno de tiempo activo vs. tiempo planificado, registro de microparadas, cambios de formato de herramienta, ciclos por unidad y órdenes de fabricación terminadas.',
+        kpisFed:
+          'Eficiencia Global de Equipos (Disponibilidad × Rendimiento × Calidad) y Cumplimiento del Programa Maestro de Producción.',
       },
       {
-        name: 'QMS · Norma OTAN AQAP-2110',
-        modules: 'SAP QM · Ensayos END · Polígonos Balísticos',
-        docs: 'Reportes de inspección por visión/ultrasonido/rayos X y actas oficiales GQAR de aceptación estatal.',
+        name: 'Sistema de Calidad OTAN y Polígonos Balísticos',
+        shortCategory: 'Inspección y Certificación Militar',
         feeds: 'Calidad',
         pillClass: 'pill-green',
+        summary:
+          'Centraliza controles automáticos en línea para evitar defectos y documenta las pruebas balísticas exigidas antes de entregar lotes.',
+        fullSoftware:
+          'Gestión de Calidad en SAP (SAP Quality Management) junto a estaciones de Ensayos No Destructivos (visión artificial, ultrasonido y rayos X) bajo norma OTAN de aseguramiento de calidad (AQAP-2110) y polígonos de prueba.',
+        documents:
+          'Reportes de piezas conformes al primer intento, fichas de rechazo o reproceso y actas oficiales de aceptación o retención de lotes firmadas por inspectores gubernamentales.',
+        kpisFed:
+          'Rendimiento a la Primera Pasada (First-Pass Yield) y Tasa de Rechazo o Demora en Aceptación de Lotes.',
       },
       {
-        name: 'EHS · SAP EHS Management',
-        modules: 'SAP EHS + Control Horario SAP SuccessFactors',
-        docs: 'Auditorías de riesgo ATEX, cierre de hallazgos en SLA, horas-hombre trabajadas y partes ISO 45001.',
+        name: 'SAP Gestión de Seguridad, Salud y Personal',
+        shortCategory: 'Seguridad Industrial y Recursos Humanos',
         feeds: 'Seguridad',
         pillClass: 'pill-amber',
+        summary:
+          'Monitorea riesgos preventivos en zonas con material energético y cruza los partes de accidentes con las horas reales trabajadas.',
+        fullSoftware:
+          'Plataforma corporativa SAP de Salud, Seguridad Industrial y Medio Ambiente integrada con gestión de personal y fichajes de turnos (SAP SuccessFactors) bajo norma internacional de seguridad laboral ISO 45001.',
+        documents:
+          'Listas de verificación en zonas con riesgo explosivo, reportes de riesgos cerrados dentro de plazo, registro de horas-hombre por planta y partes médicos de accidentes laborales.',
+        kpisFed:
+          'Tasa de Cierre Proactivo de Riesgos e Índice de Frecuencia de Accidentes con Baja Médica por millón de horas.',
       },
     ],
   },

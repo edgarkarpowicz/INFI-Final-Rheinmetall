@@ -893,12 +893,12 @@
 
         <div class="closed-loop-bar anim-rise delay-1" style="margin-bottom: 12px; padding: 10px 15px; flex-wrap: nowrap">
           <div style="font-size: 12.5px; color: var(--text-primary)">
-            <strong>Principio Híbrido:</strong>
+            <strong>Enfoque Híbrido en palabras simples:</strong>
             <span style="color: var(--text-secondary)">
-              Reconcilia la contabilidad real 9M/FY25 con simulación calibrada donde la información fabril es reservada.
+              ${esc(arch.bannerSummary)}
             </span>
           </div>
-          <span class="pill pill-blue font-mono" style="white-space: nowrap">2 Capas · Trazable</span>
+          <span class="pill pill-blue" style="white-space: nowrap">2 Capas Complementarias</span>
         </div>
 
         <div class="grid-2 anim-rise delay-2">
@@ -915,15 +915,15 @@
                   </div>
 
                   <div class="kv-row" style="padding: 6px 0; font-size: 12px">
-                    <span class="kv-key">Fuentes</span>
+                    <span class="kv-key">De dónde sale</span>
                     <span style="color: var(--text-secondary)">${esc(layer.sources)}</span>
                   </div>
                   <div class="kv-row" style="padding: 6px 0; font-size: 12px">
-                    <span class="kv-key">Alcance</span>
+                    <span class="kv-key">Qué aporta</span>
                     <span style="color: var(--text-primary)">${esc(layer.scope)}</span>
                   </div>
                   <div class="kv-row" style="padding: 6px 0; font-size: 12px">
-                    <span class="kv-key">Justificación</span>
+                    <span class="kv-key">Por qué se usa</span>
                     <span style="color: var(--text-secondary)">${esc(layer.justification)}</span>
                   </div>
                 </div>
@@ -943,7 +943,7 @@
           <span class="slide-kicker">09 · Integración en Vivo</span>
           <h2 class="slide-title font-display">Flujo de Integración y Sistemas Empresariales Origen (Pipeline ETL)</h2>
           <p class="slide-subtitle" style="max-width: none">
-            Software empresarial, telemetría de planta y documentos oficiales que alimentarían el tablero de forma continua en producción.
+            Software real que alimentaría este tablero en funcionamiento continuo. Hacé clic en cualquier tarjeta para ver sus módulos y documentos.
           </p>
         </div>
 
@@ -965,18 +965,31 @@
 
         <div class="grid-2 anim-rise delay-2">
           ${etl.systems
-        .map(function (sys) {
+        .map(function (sys, idx) {
           return `
-                <div class="rhm-card" style="padding: 13px 15px; display: flex; flex-direction: column; gap: 6px">
-                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
-                    <strong class="font-display" style="font-size: 16px">${esc(sys.name)}</strong>
-                    <span class="pill ${esc(sys.pillClass)}" style="font-size: 10.5px">${esc(sys.feeds)}</span>
+                <button
+                  class="rhm-card etl-card"
+                  type="button"
+                  data-etl-idx="${idx}"
+                  style="padding: 14px 16px"
+                >
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px">
+                      <div>
+                        <div class="stat-label">${esc(sys.shortCategory)}</div>
+                        <strong class="font-display" style="font-size: 16.5px; display: block; margin-top: 2px">${esc(sys.name)}</strong>
+                      </div>
+                      <span class="pill ${esc(sys.pillClass)}" style="font-size: 10.5px; white-space: nowrap">${esc(sys.feeds)}</span>
+                    </div>
+                    <p style="margin: 0; font-size: 12.5px; color: var(--text-secondary); line-height: 1.42">
+                      ${esc(sys.summary)}
+                    </p>
                   </div>
-                  <div class="font-mono" style="font-size: 11px; color: var(--accent-blue)">${esc(sys.modules)}</div>
-                  <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4">
-                    <strong style="color: var(--text-primary)">Documentos / Registros:</strong> ${esc(sys.docs)}
+                  <div class="justif-foot">
+                    <span>Software, documentos e indicadores</span>
+                    <span>Ver detalle →</span>
                   </div>
-                </div>
+                </button>
               `;
         })
         .join('')}
@@ -1105,6 +1118,46 @@
         <button class="cta-primary" type="button" data-jump-sector="${secIdx >= 0 ? secIdx : 0}">
           <span>Ver evolución en Explorador Técnico →</span>
         </button>
+      </div>
+    `;
+
+    els.sectorDetailModal.classList.add('is-open');
+    els.sectorDetailModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function openEtlDetailModal(idx) {
+    if (!els.sectorDetailModal || !els.sectorDetailBody) return;
+    const sys = D.etlPipeline.systems[idx];
+    if (!sys) return;
+
+    els.sectorDetailBody.innerHTML = `
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px">
+        <div>
+          <span class="slide-kicker">${esc(sys.shortCategory)}</span>
+          <h2 class="font-display" style="margin: 6px 0 4px; font-size: 21px">${esc(sys.name)}</h2>
+          <p style="margin: 0; font-size: 12.5px; color: var(--text-secondary)">
+            ${esc(sys.summary)}
+          </p>
+        </div>
+        <button class="hud-btn" type="button" data-close-detail="true">Cerrar (Esc)</button>
+      </div>
+
+      <div class="rhm-subcard" style="display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px">
+          <span class="pill ${esc(sys.pillClass)}">Alimenta: ${esc(sys.feeds)}</span>
+        </div>
+        <div class="kv-row" style="padding: 6px 0; font-size: 12.5px">
+          <span class="kv-key">Software y áreas</span>
+          <span>${esc(sys.fullSoftware)}</span>
+        </div>
+        <div class="kv-row" style="padding: 6px 0; font-size: 12.5px">
+          <span class="kv-key">Documentos reales</span>
+          <span>${esc(sys.documents)}</span>
+        </div>
+        <div class="kv-row" style="padding: 6px 0; font-size: 12.5px">
+          <span class="kv-key">KPIs que genera</span>
+          <span style="font-weight: 600; color: var(--accent-blue)">${esc(sys.kpisFed)}</span>
+        </div>
       </div>
     `;
 
@@ -1243,6 +1296,12 @@
     const justifBtn = e.target.closest('[data-justif-sector]');
     if (justifBtn) {
       openSectorDetailModal(justifBtn.getAttribute('data-justif-sector'));
+      return;
+    }
+
+    const etlBtn = e.target.closest('[data-etl-idx]');
+    if (etlBtn) {
+      openEtlDetailModal(Number(etlBtn.getAttribute('data-etl-idx')));
       return;
     }
 

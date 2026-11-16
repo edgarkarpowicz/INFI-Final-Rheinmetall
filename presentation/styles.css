@@ -1087,15 +1087,25 @@ body {
   gap: 8px;
 }
 
-button.justif-item {
+button.justif-item,
+button.etl-card {
   text-align: left;
   cursor: pointer;
   color: inherit;
   transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
+button.etl-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 button.justif-item:hover,
-button.justif-item:focus-visible {
+button.justif-item:focus-visible,
+button.etl-card:hover,
+button.etl-card:focus-visible {
   border-color: var(--accent-blue);
   transform: translateY(-2px);
   outline: none;
