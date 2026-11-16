@@ -650,9 +650,18 @@
         </div>
 
         <div class="rhm-card card-highlight anim-rise delay-2" style="padding: 16px 18px">
-          <div style="margin-bottom: 10px">
-            <span class="stat-label">${esc(active.level)} · Foco: ${esc(active.focus)}</span>
-            <h3 class="font-display" style="margin: 2px 0 0; font-size: 19px">${esc(active.role)}</h3>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px">
+            <div>
+              <span class="stat-label">${esc(active.level)} · Foco: ${esc(active.focus)}</span>
+              <h3 class="font-display" style="margin: 2px 0 0; font-size: 19px">${esc(active.role)}</h3>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px">
+              ${(active.kpis || [])
+        .map(function (k) {
+          return `<span class="pill pill-green font-mono">${esc(k)}</span>`;
+        })
+        .join('')}
+            </div>
           </div>
 
           <div class="flow-chain" style="align-items: stretch">
@@ -809,10 +818,6 @@
                   </div>
 
                   <div class="kv-row">
-                    <span class="kv-key">Stakeholder</span>
-                    <span style="font-weight: 700">${esc(k.stakeholder)}</span>
-                  </div>
-                  <div class="kv-row">
                     <span class="kv-key">Propósito</span>
                     <span style="color: var(--text-secondary)">${esc(k.purpose)}</span>
                   </div>
@@ -856,27 +861,27 @@
           <h2 class="slide-title font-display" style="margin-top: 10px">
             Conclusión: Control Operacional para Escalar sin Desvíos
           </h2>
-          <p class="slide-subtitle" style="margin-bottom: 16px">
-            El tablero convierte una cartera récord de €78.000M en decisiones diarias coordinadas entre dirección, planta, calidad y compras.
+          <p class="slide-subtitle" style="margin-bottom: 16px; max-width: none">
+            La guerra en Ucrania disparó un hipercrecimiento inédito (de 1 turno en paz a €78.000M de cartera): el desafío dejó de ser conseguir contratos y pasó a ser escalar plantas sin colapsar.
           </p>
 
           <div class="grid-3" style="margin-bottom: 18px">
             <div class="rhm-subcard">
-              <div class="stat-label">Qué Resuelve</div>
+              <div class="stat-label">El Problema Inicial</div>
               <div style="font-size: 12.5px; margin-top: 5px; color: var(--text-secondary); line-height: 1.42">
-                Conecta las promesas comerciales con la capacidad real de línea, certificación OTAN y disponibilidad de insumos.
+                El salto explosivo de demanda pos-2022 tensionó líneas a 3 turnos, suministro de insumos críticos, certificación de lotes y seguridad laboral.
               </div>
             </div>
             <div class="rhm-subcard">
-              <div class="stat-label">Para Qué Es Útil</div>
+              <div class="stat-label">Qué Resuelve el Tablero</div>
               <div style="font-size: 12.5px; margin-top: 5px; color: var(--text-secondary); line-height: 1.42">
-                Da a cada responsable alertas tempranas para actuar a tiempo: ampliar turnos, destrabar lotes o blindar proveedores.
+                Conecta la presión comercial con la capacidad real de planta, destraba entregas OTAN, equilibra stock y anticipa riesgos operativos.
               </div>
             </div>
             <div class="rhm-subcard">
-              <div class="stat-label">Valor para Rheinmetall</div>
+              <div class="stat-label">Utilidad para Rheinmetall</div>
               <div style="font-size: 12.5px; margin-top: 5px; color: var(--text-secondary); line-height: 1.42">
-                Permite sostener la expansión a 3 turnos cumpliendo entregas, margen operativo y seguridad industrial.
+                Brinda control diario con alertas accionables para absorber el hipercrecimiento cumpliendo entregas, margen y seguridad industrial.
               </div>
             </div>
           </div>
@@ -951,10 +956,6 @@
                 <div class="kv-row" style="padding: 5px 0; font-size: 11.5px">
                   <span class="kv-key">Qué responde</span>
                   <span style="font-style: italic">${esc(k.question)}</span>
-                </div>
-                <div class="kv-row" style="padding: 5px 0; font-size: 11.5px">
-                  <span class="kv-key">Responsable</span>
-                  <span style="font-weight: 600">${esc(k.stakeholder)}</span>
                 </div>
                 <div class="kv-row" style="padding: 5px 0; font-size: 11.5px">
                   <span class="kv-key">Acción</span>
