@@ -1,0 +1,2 @@
+Barlow, Inter y JetBrains Mono se distribuyen bajo la SIL Open Font License 1.1 (https://openfontlicense.org).
+Archivos tomados de los paquetes @fontsource (subconjunto latino).
