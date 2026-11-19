@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { PERSONAS, SECTORS } from '../../data/kpiCatalogEnriched';
+import { RheinmetallLogo, RheinmetallMark } from '../common/RheinmetallLogo';
 import type { MainViewId, PersonaId, SectorId } from '../../types/kpi';
 
 interface SidebarProps {
@@ -108,26 +109,11 @@ export function Sidebar({
             }`}
             style={{ borderColor: 'var(--sidebar-border)' }}
           >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border"
-                style={{
-                  backgroundColor: 'var(--bg-surface)',
-                  borderColor: 'var(--border-color)',
-                }}
-                title="Rheinmetall AG — Strategic KPI"
-              >
-                <svg viewBox="0 0 40 40" className="h-4 w-4" aria-hidden="true">
-                  <polygon points="4,8 28,8 20,19 4,19" fill="#1D5B8C" />
-                  <polygon points="20,19 36,19 28,32 12,32" fill="#2B6CB0" />
-                  <polygon points="4,22 16,22 10,32 4,32" fill="#64748B" />
-                </svg>
-              </div>
-              <div className={collapsed ? 'lg:hidden' : ''}>
-                <div className="font-display text-sm font-bold tracking-wider text-[var(--sidebar-text)]">
-                  RHEINMETALL
-                </div>
-              </div>
+            <div className="flex items-center gap-2 min-w-0">
+              <RheinmetallLogo className={collapsed ? 'h-6 w-auto block -translate-y-[3px] lg:hidden' : 'h-6 w-auto block -translate-y-[3px]'} />
+              {collapsed && (
+                <RheinmetallMark className="hidden h-7 w-auto lg:block" />
+              )}
             </div>
 
             {onToggleCollapse && (

@@ -47,20 +47,22 @@ Otros scripts disponibles en `project/package.json`:
 | `npm run build` | Verifica tipos (`tsc`) y genera el bundle de producción (`project/dist/`) |
 | `npm run preview` | Previsualiza localmente el build de producción |
 
-El flujo `.github/workflows/deploy-pages.yml` ejecuta `npm ci`, `npm test` y `npm run build` sobre `project/` y publica `project/dist/` en GitHub Pages en cada push a `main`.
+El flujo `.github/workflows/deploy-pages.yml` ejecuta `npm ci`, `npm test` y `npm run build` sobre `project/`, empaqueta `presentation/` dentro de `project/dist/presentacion/` y publica `project/dist/` en GitHub Pages en cada push a `main`.
 
 ---
 
 ## Cómo abrir la Presentación (`presentation/`)
 
-La carpeta `presentation/` contiene 11 diapositivas interactivas sin dependencias externas ni paso de compilación:
+La carpeta `presentation/` contiene 16 diapositivas interactivas autocontenidas (HTML / CSS / JS y tipografías locales en `fonts/`) sin paso de compilación:
 
 1. Abrir [`presentation/index.html`](presentation/index.html) directamente en cualquier navegador moderno.
 2. Controles disponibles:
-   - `←` / `→`: navegar entre diapositivas (soporta hash de URL `#slide=N&theme=dark`)
+   - `←` / `→` (o `↑` / `↓`, `Espacio`): navegar entre diapositivas (soporta hash `#slide=N&theme=dark` y anclas `#id`)
    - `M`: abrir/cerrar el mapa general de diapositivas
    - `T`: alternar tema claro / oscuro
    - `F`: mostrar/ocultar la flota táctica animada
+   - `N`: abrir/cerrar notas del presentador
+   - `P`: alternar pantalla completa
 
 ---
 

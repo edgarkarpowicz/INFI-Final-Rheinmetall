@@ -51,6 +51,11 @@
   --status-red-text: #9b3b3b;
   --status-red-bg: #faf0f0;
   --status-red-border: #e5c2c2;
+
+  --rhm-word: #3E3D40;
+  --rhm-b1: #007EC1;
+  --rhm-b2: #00406E;
+  --rhm-b3: #000824;
 }
 
 /* Soft Matte Charcoal (Low-Halation Dark Mode) */
@@ -97,6 +102,11 @@
   --status-red-text: #df8b8b;
   --status-red-bg: rgba(206, 107, 107, 0.11);
   --status-red-border: rgba(206, 107, 107, 0.24);
+
+  --rhm-word: #e6ecf5;
+  --rhm-b1: #0092df;
+  --rhm-b2: #005591;
+  --rhm-b3: #09203d;
 }
 
 * {

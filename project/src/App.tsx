@@ -105,6 +105,7 @@ export function App() {
           dataOriginLabel={topBarSnapshot.dataOriginLabel}
           isDivisionalQuarterlyOnly={snapshot.isDivisionalQuarterlyOnly}
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
+          showBrandLogo={sidebarCollapsed}
         />
 
         <main className="mx-auto w-full max-w-[1260px] flex-1 px-5 py-7 lg:px-8">

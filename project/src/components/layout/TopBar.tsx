@@ -1,5 +1,6 @@
 import { Calendar, Database, Menu } from 'lucide-react';
 import { DATASET, PERSONAS } from '../../data/kpiCatalogEnriched';
+import { RheinmetallLogo } from '../common/RheinmetallLogo';
 import type { DivisionFilter, MainViewId, PeriodFilter, PersonaId } from '../../types/kpi';
 
 interface TopBarProps {
@@ -12,6 +13,7 @@ interface TopBarProps {
   dataOriginLabel: string;
   isDivisionalQuarterlyOnly: boolean;
   onOpenMobileMenu: () => void;
+  showBrandLogo?: boolean;
 }
 
 const VIEW_TITLES: Record<MainViewId, string> = {
@@ -47,6 +49,7 @@ export function TopBar({
   dataOriginLabel,
   isDivisionalQuarterlyOnly,
   onOpenMobileMenu,
+  showBrandLogo = false,
 }: TopBarProps) {
   const activePersona = PERSONAS.find((p) => p.id === persona) ?? PERSONAS[0];
   const isMonthSelected = period.startsWith('2026-');
@@ -72,6 +75,12 @@ export function TopBar({
             >
               <Menu className="h-4 w-4" />
             </button>
+            <div
+              className={`items-center border-r pr-3 ${showBrandLogo ? 'flex' : 'flex lg:hidden'}`}
+              style={{ borderColor: 'var(--border-color)' }}
+            >
+              <RheinmetallLogo className="h-[22px] w-auto block -translate-y-[3px]" />
+            </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-base font-semibold tracking-tight text-[var(--text-primary)] sm:text-[17px]">
