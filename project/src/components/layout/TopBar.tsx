@@ -1,4 +1,4 @@
-import { Calendar, Database, Menu } from 'lucide-react';
+import { Calendar, Database, Menu, Pause, Play } from 'lucide-react';
 import { DATASET, PERSONAS } from '../../data/kpiCatalogEnriched';
 import { RheinmetallLogo } from '../common/RheinmetallLogo';
 import type { DivisionFilter, MainViewId, PeriodFilter, PersonaId } from '../../types/kpi';
@@ -14,6 +14,8 @@ interface TopBarProps {
   isDivisionalQuarterlyOnly: boolean;
   onOpenMobileMenu: () => void;
   showBrandLogo?: boolean;
+  isPlaying?: boolean;
+  onTogglePlay?: () => void;
 }
 
 const VIEW_TITLES: Record<MainViewId, string> = {
@@ -50,6 +52,8 @@ export function TopBar({
   isDivisionalQuarterlyOnly,
   onOpenMobileMenu,
   showBrandLogo = false,
+  isPlaying = false,
+  onTogglePlay,
 }: TopBarProps) {
   const activePersona = PERSONAS.find((p) => p.id === persona) ?? PERSONAS[0];
   const isMonthSelected = period.startsWith('2026-');
@@ -176,6 +180,38 @@ export function TopBar({
               ))}
             </select>
           </div>
+
+          {onTogglePlay && (
+            <button
+              type="button"
+              onClick={onTogglePlay}
+              aria-pressed={isPlaying}
+              aria-label={isPlaying ? 'Pausar evolución 2026' : 'Reproducir evolución 2026'}
+              title={
+                monthDisabled
+                  ? 'Reproducir secuencia trimestral Q1 → Q4 2026'
+                  : 'Reproducir secuencia mensual Ene → Dic 2026'
+              }
+              className="cursor-pointer inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-[11px] font-medium transition hover:border-[var(--border-strong)]"
+              style={
+                isPlaying
+                  ? {
+                      backgroundColor: 'var(--accent-blue-soft)',
+                      borderColor: 'var(--accent-blue)',
+                      color: 'var(--accent-blue)',
+                      fontWeight: 600,
+                    }
+                  : {
+                      backgroundColor: 'var(--bg-elevated)',
+                      borderColor: 'var(--border-color)',
+                      color: 'var(--text-primary)',
+                    }
+              }
+            >
+              {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+              <span className="hidden sm:inline">{isPlaying ? 'Pausar' : 'Reproducir'}</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

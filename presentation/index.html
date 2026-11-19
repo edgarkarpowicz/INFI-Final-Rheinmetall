@@ -2159,9 +2159,23 @@ window.RHM={"sectors":[{"id":"ventas","numero":1,"nombre":"Ventas","subtituloEn"
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { } } };
 
   /* ---------------- Tema (T) · claro u oscuro ---------------- */
+  function dashBaseUrl() {
+    if (!/^https?:/.test(location.protocol)) return PAGES_URL;
+    const path = location.pathname;
+    return new URL(path.endsWith('/') || path.endsWith('.html') ? '../' : './', location.href).href;
+  }
   const hashQ = new URLSearchParams(location.hash.replace(/^#/, ''));
   let theme = hashQ.get('theme') || store.get('rhm-theme') || 'dark';
-  const applyTheme = t => { theme = t; document.documentElement.dataset.theme = t; store.set('rhm-theme', t); };
+  function updateDashLinks() {
+    try {
+      const u = new URL(dashBaseUrl());
+      u.searchParams.set('theme', theme);
+      $$('.dash-link, #btnDash').forEach(a => a.href = u.href);
+    } catch {
+      $$('.dash-link, #btnDash').forEach(a => a.href = dashBaseUrl());
+    }
+  }
+  const applyTheme = t => { theme = t; document.documentElement.dataset.theme = t; store.set('rhm-theme', t); updateDashLinks(); };
   applyTheme(theme);
 
   /* ---------------- Formato, estados y períodos ---------------- */
@@ -2672,13 +2686,7 @@ window.RHM={"sectors":[{"id":"ventas","numero":1,"nombre":"Ventas","subtituloEn"
   })();
 
   /* ---------------- Enlaces al tablero ---------------- */
-  function dashUrl() {
-    if (!/^https?:/.test(location.protocol)) return PAGES_URL;
-    const path = location.pathname;
-    return new URL(path.endsWith('/') || path.endsWith('.html') ? '../' : './', location.href).href;
-  }
-  const DASH = dashUrl();
-  $$('.dash-link, #btnDash').forEach(a => a.href = DASH);
+  updateDashLinks();
 
   /* ---------------- 21 · Cierre + desfile ---------------- */
   (function () {

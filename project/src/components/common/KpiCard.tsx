@@ -1,25 +1,49 @@
 import { AlertCircle, ArrowUpRight, FileText, TrendingUp } from 'lucide-react';
-import { Area, AreaChart, ResponsiveContainer, Tooltip } from 'recharts';
+import {
+  Area,
+  AreaChart,
+  ReferenceArea,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  YAxis,
+} from 'recharts';
+import { KPI_CHART_META, getSparklineDomain } from '../../utils/chartConfig';
 import { formatKpiValue } from '../../utils/formatters';
 import type { EvaluatedKpi } from '../../types/kpi';
-import { getStatusVars, StatusBadge, TypologyBadge } from './StatusBadge';
+import { AcronymText } from './AcronymText';
+import { getMomentumDisplay, getStatusVars, StatusBadge, TypologyBadge } from './StatusBadge';
 
 interface KpiCardProps {
   kpi: EvaluatedKpi;
   onInspect: (kpi: EvaluatedKpi) => void;
   onDrillSector?: () => void;
   highlighted?: boolean;
+  activePointLabel?: string | null;
 }
 
 function formatTargetSymbol(meta: string): string {
   return meta.replace('>=', '≥').replace('<=', '≤');
 }
 
-export function KpiCard({ kpi, onInspect, onDrillSector, highlighted = false }: KpiCardProps) {
+export function KpiCard({
+  kpi,
+  onInspect,
+  onDrillSector,
+  highlighted = false,
+  activePointLabel = null,
+}: KpiCardProps) {
   const sv = getStatusVars(kpi.status);
+  const momentumView = kpi.momentum ? getMomentumDisplay(kpi.momentum) : null;
   const gradientId = `spark-${kpi.meta.codigo.replace('.', '-')}`;
   const isPositiveCapexAlert = kpi.status === 'Óptimo' && Boolean(kpi.advisoryNote);
   const protocolSummary = kpi.advisoryNote ?? kpi.meta.protocolo;
+  const chartMeta = KPI_CHART_META[kpi.meta.codigo];
+  const sparkDomain = getSparklineDomain(
+    kpi.meta.codigo,
+    kpi.trendSeries.map((pt) => pt.value)
+  );
+  const lastIdx = kpi.trendSeries.length - 1;
 
   return (
     <article
@@ -72,17 +96,41 @@ export function KpiCard({ kpi, onInspect, onDrillSector, highlighted = false }: 
                 {kpi.deltaLabel}
               </span>
             </div>
+            {momentumView && (
+              <div
+                className="font-mono-num mt-0.5 text-[10px] font-medium"
+                style={{ color: momentumView.color }}
+              >
+                {momentumView.label}
+              </div>
+            )}
           </div>
 
-          <div className="h-9 w-20 shrink-0">
+          <div className="h-9 w-22 shrink-0">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={kpi.trendSeries} margin={{ top: 3, right: 2, left: 2, bottom: 2 }}>
+              <AreaChart data={kpi.trendSeries} margin={{ top: 4, right: 3, left: 2, bottom: 3 }}>
                 <defs>
                   <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--text-muted)" stopOpacity={0.14} />
-                    <stop offset="95%" stopColor="var(--text-muted)" stopOpacity={0.01} />
+                    <stop offset="5%" stopColor={sv.color} stopOpacity={0.22} />
+                    <stop offset="95%" stopColor={sv.color} stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
+                <YAxis hide domain={sparkDomain} />
+                {Array.isArray(chartMeta.ok) ? (
+                  <ReferenceArea
+                    y1={chartMeta.ok[0]}
+                    y2={chartMeta.ok[1]}
+                    fill="var(--status-green)"
+                    fillOpacity={0.14}
+                  />
+                ) : (
+                  <ReferenceLine
+                    y={chartMeta.ok}
+                    stroke="var(--text-muted)"
+                    strokeDasharray="2 2"
+                    strokeOpacity={0.65}
+                  />
+                )}
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'var(--tooltip-bg)',
@@ -98,10 +146,27 @@ export function KpiCard({ kpi, onInspect, onDrillSector, highlighted = false }: 
                 <Area
                   type="monotone"
                   dataKey="value"
-                  stroke="var(--text-muted)"
-                  strokeWidth={1.5}
+                  stroke={sv.color}
+                  strokeWidth={1.6}
                   fill={`url(#${gradientId})`}
-                  dot={false}
+                  dot={(props) => {
+                    const { cx, cy, index, payload } = props;
+                    if (cx == null || cy == null) return <g key={`sp-empty-${index ?? 0}`} />;
+                    const label = (payload as { label?: string } | undefined)?.label;
+                    const show = activePointLabel ? label === activePointLabel : index === lastIdx;
+                    if (!show) return <g key={`sp-skip-${index ?? 0}`} />;
+                    return (
+                      <circle
+                        key={`sp-dot-${label ?? index}`}
+                        cx={cx}
+                        cy={cy}
+                        r={3}
+                        fill={sv.color}
+                        stroke="var(--bg-surface)"
+                        strokeWidth={1.5}
+                      />
+                    );
+                  }}
                   isAnimationActive={false}
                 />
               </AreaChart>
@@ -109,7 +174,7 @@ export function KpiCard({ kpi, onInspect, onDrillSector, highlighted = false }: 
           </div>
         </div>
 
-        {/* Hairline Progress Bar (RF-01) */}
+        {/* Hairline Progress Bar */}
         <div className="mt-3">
           <div className="mb-1 flex items-center justify-between text-[10px]">
             <span className="text-[var(--text-muted)]">Cumplimiento</span>
@@ -139,7 +204,6 @@ export function KpiCard({ kpi, onInspect, onDrillSector, highlighted = false }: 
               backgroundColor: isPositiveCapexAlert ? 'var(--accent-blue-soft)' : sv.bg,
               borderColor: 'var(--border-color)',
             }}
-            title={protocolSummary}
           >
             {isPositiveCapexAlert ? (
               <TrendingUp
@@ -157,10 +221,14 @@ export function KpiCard({ kpi, onInspect, onDrillSector, highlighted = false }: 
                 className="font-semibold"
                 style={{ color: isPositiveCapexAlert ? 'var(--accent-blue)' : sv.text }}
               >
-                {isPositiveCapexAlert ? 'Alerta CapEx: ' : 'Acción: '}
+                {isPositiveCapexAlert ? (
+                  <AcronymText text="Alerta Inversión (CapEx): " />
+                ) : (
+                  'Acción: '
+                )}
               </span>
               <span className="text-[var(--text-secondary)]">
-                {kpi.actionBrief ?? protocolSummary}
+                <AcronymText text={kpi.actionBrief ?? protocolSummary} />
               </span>
             </div>
           </div>

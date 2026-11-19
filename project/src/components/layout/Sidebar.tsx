@@ -256,7 +256,7 @@ export function Sidebar({
             </nav>
           </div>
 
-          {/* Interactive Stakeholder Profiles (SRS §5) — Always Clickable Even Collapsed */}
+          {/* Interactive Stakeholder Profiles — Always Clickable Even Collapsed */}
           <div
             className={`mt-4 border-t pt-3 ${collapsed ? 'px-2' : 'px-2.5'}`}
             style={{ borderColor: 'var(--sidebar-border)' }}
@@ -267,7 +267,7 @@ export function Sidebar({
               }`}
             >
               <UserCheck className="h-3 w-3" style={{ color: 'var(--accent-blue)' }} />
-              Perfil Decisor (SRS §5)
+              Perfil Decisor
             </div>
             <div className="space-y-1">
               {PERSONAS.map((p) => {

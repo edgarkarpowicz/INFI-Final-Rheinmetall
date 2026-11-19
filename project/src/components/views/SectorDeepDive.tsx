@@ -1,6 +1,13 @@
 import { Cpu, UserCheck } from 'lucide-react';
 import { PERSONAS, SECTORS, SECTOR_BY_ID } from '../../data/kpiCatalogEnriched';
-import type { EvaluatedKpi, PeriodSnapshot, PersonaId, SectorId } from '../../types/kpi';
+import type {
+  EvaluatedKpi,
+  PeriodFilter,
+  PeriodSnapshot,
+  PersonaId,
+  SectorId,
+} from '../../types/kpi';
+import { getActivePointLabel } from '../../utils/chartConfig';
 import { KpiCard } from '../common/KpiCard';
 import { DosBandChart } from '../charts/DosBandChart';
 import { OeeDecomposition } from '../charts/OeeDecomposition';
@@ -16,6 +23,7 @@ interface SectorDeepDiveProps {
   persona?: PersonaId;
   onSelectSector: (s: SectorId) => void;
   onInspectKpi: (kpi: EvaluatedKpi) => void;
+  onSelectPeriod?: (p: PeriodFilter) => void;
 }
 
 export function SectorDeepDive({
@@ -24,15 +32,20 @@ export function SectorDeepDive({
   persona = 'coo',
   onSelectSector,
   onInspectKpi,
+  onSelectPeriod,
 }: SectorDeepDiveProps) {
   const sector = SECTOR_BY_ID[activeSector];
   const leadingKpi = snapshot.kpis[sector.leadingCode];
   const laggingKpi = snapshot.kpis[sector.laggingCode];
   const activePersona = PERSONAS.find((p) => p.id === persona);
+  const activePointLabel = getActivePointLabel(
+    snapshot.period,
+    snapshot.isDivisionalQuarterlyOnly
+  );
 
   return (
     <div className="space-y-5">
-      {/* Sector Selector Pills (RF-02) */}
+      {/* Sector Selector Pills */}
       <div className="flex flex-wrap gap-2">
         {SECTORS.map((s) => {
           const isActive = s.id === activeSector;
@@ -137,13 +150,23 @@ export function SectorDeepDive({
         </div>
       </section>
 
-      {/* Leading vs Lagging Contrast Cards (RF-02) */}
+      {/* Leading vs Lagging Contrast Cards */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <KpiCard kpi={leadingKpi} onInspect={onInspectKpi} highlighted />
-        <KpiCard kpi={laggingKpi} onInspect={onInspectKpi} highlighted />
+        <KpiCard
+          kpi={leadingKpi}
+          onInspect={onInspectKpi}
+          highlighted
+          activePointLabel={activePointLabel}
+        />
+        <KpiCard
+          kpi={laggingKpi}
+          onInspect={onInspectKpi}
+          highlighted
+          activePointLabel={activePointLabel}
+        />
       </div>
 
-      {/* Special Analytical Modules per Sector + Temporal Charts (RF-03) */}
+      {/* Special Analytical Modules per Sector + Temporal Charts */}
       {activeSector === 'produccion' && snapshot.oeeBreakdown && (
         <OeeDecomposition
           breakdown={snapshot.oeeBreakdown}
@@ -152,19 +175,31 @@ export function SectorDeepDive({
         />
       )}
 
-      {activeSector === 'compras' && <DosBandChart />}
+      {activeSector === 'compras' && (
+        <DosBandChart period={snapshot.period} onSelectPeriod={onSelectPeriod} />
+      )}
 
       <div className="grid gap-5 xl:grid-cols-2">
         <SectorEvolutionChart
           sectorId={activeSector}
           leadingCode={sector.leadingCode}
           laggingCode={sector.laggingCode}
+          period={snapshot.period}
+          onSelectPeriod={onSelectPeriod}
         />
-        <SectorVolumeDriverChart sectorId={activeSector} />
+        <SectorVolumeDriverChart
+          sectorId={activeSector}
+          period={snapshot.period}
+          onSelectPeriod={onSelectPeriod}
+        />
       </div>
 
-      {/* Divisional Breakdown for the active sector (RF-03) */}
-      <SectorDivisionalComparisonChart sectorId={activeSector} />
+      {/* Divisional Breakdown for the active sector */}
+      <SectorDivisionalComparisonChart
+        sectorId={activeSector}
+        period={snapshot.period}
+        onSelectPeriod={onSelectPeriod}
+      />
     </div>
   );
 }

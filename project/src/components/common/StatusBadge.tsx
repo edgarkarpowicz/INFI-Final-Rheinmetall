@@ -1,4 +1,28 @@
-import type { KpiStatus } from '../../types/kpi';
+import type { KpiMomentum, KpiStatus } from '../../types/kpi';
+
+export function getMomentumDisplay(momentum: KpiMomentum): {
+  arrow: string;
+  color: string;
+  label: string;
+} {
+  const arrow =
+    momentum.direction === 'improving'
+      ? '↗'
+      : momentum.direction === 'worsening'
+        ? '↘'
+        : '→';
+  const color =
+    momentum.direction === 'improving'
+      ? 'var(--status-green-text)'
+      : momentum.direction === 'worsening'
+        ? 'var(--status-red-text)'
+        : 'var(--text-muted)';
+  return {
+    arrow,
+    color,
+    label: `${arrow} ${momentum.deltaText} ${momentum.comparisonLabel}`,
+  };
+}
 
 export function getStatusVars(status: KpiStatus) {
   if (status === 'Óptimo') {

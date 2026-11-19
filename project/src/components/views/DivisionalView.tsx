@@ -5,20 +5,39 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
 import { DATASET } from '../../data/kpiCatalogEnriched';
+import {
+  getActiveQuarterShort,
+  getQuarterPeriodFromShort,
+  KPI_CHART_META,
+} from '../../utils/chartConfig';
 import { formatCurrencyMeur, formatNumberEs } from '../../utils/formatters';
 import { evaluateStatus, getPeriodSnapshot, normalizePeriodForDivision } from '../../utils/kpiEngine';
-import type { DivisionFilter, DivisionalRecord, KpiCode, PeriodFilter } from '../../types/kpi';
+import type {
+  DivisionFilter,
+  DivisionalRecord,
+  EvaluatedKpi,
+  KpiCode,
+  PeriodFilter,
+} from '../../types/kpi';
+import { buildKpiThresholdElements, TOOLTIP_STYLE } from '../charts/chartGuides';
 import { getStatusVars } from '../common/StatusBadge';
 
 interface DivisionalViewProps {
   period: PeriodFilter;
   onSelectDivision?: (division: DivisionFilter) => void;
+  onSelectPeriod?: (period: PeriodFilter) => void;
+  onSelectDivisionAndPeriod?: (division: DivisionFilter, period: PeriodFilter) => void;
+  onInspectKpi?: (
+    kpi: EvaluatedKpi,
+    context?: { period: PeriodFilter; division: DivisionFilter }
+  ) => void;
 }
 
 const DEFENSE_DIVISIONS: Array<Exclude<DivisionFilter, 'Grupo Consolidado'>> = [
@@ -47,13 +66,21 @@ const METRICS: Array<{
     { key: 'ltifr', label: 'KPI-5.2 LTIFR (Acc./10⁶ h)', kpiCode: 'KPI-5.2', unit: '' },
   ];
 
-export function DivisionalView({ period, onSelectDivision }: DivisionalViewProps) {
+export function DivisionalView({
+  period,
+  onSelectDivision,
+  onSelectPeriod,
+  onSelectDivisionAndPeriod,
+  onInspectKpi,
+}: DivisionalViewProps) {
   const [selectedMetricKey, setSelectedMetricKey] = useState<keyof DivisionalRecord>('margen_pct');
   const activeMetric = METRICS.find((m) => m.key === selectedMetricKey) ?? METRICS[3];
 
   const effectivePeriod = period.startsWith('2026-')
     ? normalizePeriodForDivision(period, 'Weapon & Ammunition')
     : period;
+  const activeQuarter = getActiveQuarterShort(effectivePeriod);
+  const activeQuarterLong = activeQuarter ? `${activeQuarter} 2026` : null;
   const groupSnap = getPeriodSnapshot(effectivePeriod, 'Grupo Consolidado');
   const divSnapshots = DEFENSE_DIVISIONS.map((div) => getPeriodSnapshot(effectivePeriod, div));
 
@@ -68,17 +95,58 @@ export function DivisionalView({ period, onSelectDivision }: DivisionalViewProps
     };
   });
 
-  const renderCellBadge = (code: KpiCode, value: number, suffix: string, decimals = 2) => {
+  const activeKpiCode = activeMetric.kpiCode;
+  const yDomain: [number, number] | [number, 'auto'] = activeKpiCode
+    ? KPI_CHART_META[activeKpiCode].divisionalDomain
+    : [0, 'auto'];
+
+  const handleRowSelect = (row: DivisionalRecord) => {
+    const qPeriod = row.trimestre as PeriodFilter;
+    if (onSelectDivisionAndPeriod) {
+      onSelectDivisionAndPeriod(row.division, qPeriod);
+      return;
+    }
+    onSelectPeriod?.(qPeriod);
+    onSelectDivision?.(row.division);
+  };
+
+  const renderCellBadge = (
+    row: DivisionalRecord,
+    code: KpiCode,
+    value: number,
+    suffix: string,
+    decimals = 2
+  ) => {
     const status = evaluateStatus(code, value);
     const sv = getStatusVars(status);
+    const text = `${formatNumberEs(value, decimals)}${suffix}`;
+
+    if (!onInspectKpi) {
+      return (
+        <span
+          className="font-mono-num inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold"
+          style={{ backgroundColor: sv.bg, color: sv.text }}
+        >
+          {text}
+        </span>
+      );
+    }
+
     return (
-      <span
-        className="font-mono-num inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold"
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          const qPeriod = row.trimestre as PeriodFilter;
+          const snap = getPeriodSnapshot(qPeriod, row.division);
+          onInspectKpi(snap.kpis[code], { period: qPeriod, division: row.division });
+        }}
+        title={`${code} · ${row.division} (${row.trimestre}): ${text} · ${status} — Clic para ver ficha`}
+        className="font-mono-num inline-block cursor-pointer rounded px-1.5 py-0.5 text-[11px] font-semibold transition hover:ring-1 hover:ring-[var(--accent-blue)]"
         style={{ backgroundColor: sv.bg, color: sv.text }}
       >
-        {formatNumberEs(value, decimals)}
-        {suffix}
-      </span>
+        {text}
+      </button>
     );
   };
 
@@ -275,6 +343,9 @@ export function DivisionalView({ period, onSelectDivision }: DivisionalViewProps
             </h3>
             <p className="text-xs text-[var(--text-secondary)]">
               Compare cualquier métrica o KPI entre las plantas de Alemania, España, Reino Unido y Suiza.
+              {onSelectPeriod && (
+                <span className="ml-1.5 text-[var(--accent-blue)]">· Clic en un trimestre para filtrar</span>
+              )}
             </p>
           </div>
 
@@ -282,7 +353,7 @@ export function DivisionalView({ period, onSelectDivision }: DivisionalViewProps
             aria-label="Seleccionar métrica para comparar divisiones"
             value={String(selectedMetricKey)}
             onChange={(e) => setSelectedMetricKey(e.target.value as keyof DivisionalRecord)}
-            className="cursor-pointer rounded-md border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-3 py-1.5 text-xs font-semibold text-[var(--text-primary)] outline-none hover:border-[#007EC1]"
+            className="cursor-pointer rounded-md border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-3 py-1.5 text-xs font-semibold text-[var(--text-primary)] outline-none hover:border-[var(--accent-blue)]"
           >
             {METRICS.map((m) => (
               <option key={String(m.key)} value={String(m.key)}>
@@ -292,43 +363,65 @@ export function DivisionalView({ period, onSelectDivision }: DivisionalViewProps
           </select>
         </div>
 
-        <div className="h-80 w-full">
+        <div className={`h-80 w-full ${onSelectPeriod ? 'cursor-pointer' : ''}`}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
+              onClick={(state) => {
+                if (!onSelectPeriod || state?.activeLabel == null) return;
+                const next = getQuarterPeriodFromShort(String(state.activeLabel));
+                if (next) onSelectPeriod(next);
+              }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
               <XAxis dataKey="trimestre" tick={{ fill: 'var(--chart-axis)', fontSize: 12 }} />
-              <YAxis tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} domain={['auto', 'auto']} />
+              <YAxis tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} domain={yDomain} />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: 'var(--tooltip-bg)',
-                  borderColor: 'var(--tooltip-border)',
-                  borderRadius: '8px',
-                  color: 'var(--text-primary)',
-                  fontSize: '12px',
+                contentStyle={TOOLTIP_STYLE}
+                formatter={(v, name) => {
+                  const num = Number(v);
+                  const formatted = `${formatNumberEs(num, activeMetric.key === 'ventas_meur' || activeMetric.key === 'pedidos_meur' ? 0 : 2)}${activeMetric.unit}`;
+                  if (activeKpiCode) {
+                    return [`${formatted} · ${evaluateStatus(activeKpiCode, num)}`, String(name)];
+                  }
+                  return [formatted, String(name)];
                 }}
-                formatter={(v) => `${formatNumberEs(Number(v), 2)}${activeMetric.unit}`}
               />
               <Legend wrapperStyle={{ fontSize: '12px' }} />
+              {activeKpiCode &&
+                buildKpiThresholdElements(activeKpiCode, yDomain as [number, number])}
+              {activeQuarter && (
+                <ReferenceLine
+                  x={activeQuarter}
+                  stroke="var(--accent-blue)"
+                  strokeWidth={2}
+                  strokeOpacity={0.55}
+                />
+              )}
               <Bar
                 dataKey="wa"
                 name="Weapon & Ammunition (Unterlüß / Murcia)"
-                fill="#1d5b8c"
-                fillOpacity={0.88}
+                fill="var(--chart-div-1)"
+                fillOpacity={0.9}
                 radius={[4, 4, 0, 0]}
+                isAnimationActive={false}
               />
               <Bar
                 dataKey="vs"
                 name="Vehicle Systems (Kassel / Telford)"
-                fill="#5a8bbd"
-                fillOpacity={0.88}
+                fill="var(--chart-div-2)"
+                fillOpacity={0.9}
                 radius={[4, 4, 0, 0]}
+                isAnimationActive={false}
               />
               <Bar
                 dataKey="es"
                 name="Electronic Solutions (Bremen / Zúrich)"
-                fill="#2f855a"
-                fillOpacity={0.85}
+                fill="var(--chart-div-3)"
+                fillOpacity={0.88}
                 radius={[4, 4, 0, 0]}
+                isAnimationActive={false}
               />
             </BarChart>
           </ResponsiveContainer>
@@ -337,10 +430,18 @@ export function DivisionalView({ period, onSelectDivision }: DivisionalViewProps
 
       {/* Complete 12-Row Divisional Matrix */}
       <section className="rhm-card overflow-hidden rounded-xl">
-        <div className="border-b px-5 py-3.5" style={{ borderColor: 'var(--border-color)' }}>
+        <div
+          className="flex flex-wrap items-center justify-between gap-2 border-b px-5 py-3.5"
+          style={{ borderColor: 'var(--border-color)' }}
+        >
           <h3 className="font-display text-base font-bold tracking-tight text-[var(--text-primary)]">
             Matriz Completa por División y Planta (12 Registros Trimestrales)
           </h3>
+          {(onSelectDivisionAndPeriod || onSelectDivision || onInspectKpi) && (
+            <span className="text-[11px] text-[var(--text-muted)]">
+              Clic en una fila para filtrar división y trimestre · Clic en un KPI para abrir su ficha
+            </span>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1050px] text-left text-xs">
@@ -367,28 +468,40 @@ export function DivisionalView({ period, onSelectDivision }: DivisionalViewProps
               </tr>
             </thead>
             <tbody className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
-              {DATASET.desglose_divisional_2026.map((row) => (
-                <tr
-                  key={`${row.division}-${row.trimestre}`}
-                  className="hover:bg-[var(--bg-elevated)]"
-                >
-                  <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{row.division}</td>
-                  <td className="px-3 py-2 text-[var(--text-secondary)]">{row.planta}</td>
-                  <td className="px-3 py-2 font-mono-num text-[var(--text-secondary)]">{row.trimestre}</td>
-                  <td className="px-3 py-2 text-right font-mono-num">{formatCurrencyMeur(row.ventas_meur, 0)}</td>
-                  <td className="px-3 py-2 text-right font-mono-num">{formatCurrencyMeur(row.pedidos_meur, 0)}</td>
-                  <td className="px-3 py-2 text-center">{renderCellBadge('KPI-1.1', row.btb, 'x')}</td>
-                  <td className="px-3 py-2 text-center">{renderCellBadge('KPI-1.2', row.margen_pct, '%')}</td>
-                  <td className="px-3 py-2 text-center">{renderCellBadge('KPI-2.1', row.oee_pct, '%')}</td>
-                  <td className="px-3 py-2 text-center">{renderCellBadge('KPI-2.2', row.mps_pct, '%')}</td>
-                  <td className="px-3 py-2 text-center">{renderCellBadge('KPI-3.1', row.fpy_pct, '%')}</td>
-                  <td className="px-3 py-2 text-center">{renderCellBadge('KPI-3.2', row.rechazo_lotes_pct, '%')}</td>
-                  <td className="px-3 py-2 text-center">{renderCellBadge('KPI-4.1', row.dos_dias, 'd', 1)}</td>
-                  <td className="px-3 py-2 text-center">{renderCellBadge('KPI-4.2', row.otif_pct, '%')}</td>
-                  <td className="px-3 py-2 text-center">{renderCellBadge('KPI-5.1', row.cierre_ehs_pct, '%')}</td>
-                  <td className="px-3 py-2 text-center">{renderCellBadge('KPI-5.2', row.ltifr, '')}</td>
-                </tr>
-              ))}
+              {DATASET.desglose_divisional_2026.map((row) => {
+                const isRowActive = activeQuarterLong === row.trimestre;
+                const rowClickable = Boolean(onSelectDivisionAndPeriod || onSelectDivision);
+                return (
+                  <tr
+                    key={`${row.division}-${row.trimestre}`}
+                    onClick={rowClickable ? () => handleRowSelect(row) : undefined}
+                    className={`transition hover:bg-[var(--bg-elevated)] ${
+                      rowClickable ? 'cursor-pointer' : ''
+                    }`}
+                    style={
+                      isRowActive
+                        ? { backgroundColor: 'var(--accent-blue-soft)' }
+                        : undefined
+                    }
+                  >
+                    <td className="px-3 py-2 font-semibold text-[var(--text-primary)]">{row.division}</td>
+                    <td className="px-3 py-2 text-[var(--text-secondary)]">{row.planta}</td>
+                    <td className="px-3 py-2 font-mono-num text-[var(--text-secondary)]">{row.trimestre}</td>
+                    <td className="px-3 py-2 text-right font-mono-num">{formatCurrencyMeur(row.ventas_meur, 0)}</td>
+                    <td className="px-3 py-2 text-right font-mono-num">{formatCurrencyMeur(row.pedidos_meur, 0)}</td>
+                    <td className="px-3 py-2 text-center">{renderCellBadge(row, 'KPI-1.1', row.btb, 'x')}</td>
+                    <td className="px-3 py-2 text-center">{renderCellBadge(row, 'KPI-1.2', row.margen_pct, '%')}</td>
+                    <td className="px-3 py-2 text-center">{renderCellBadge(row, 'KPI-2.1', row.oee_pct, '%')}</td>
+                    <td className="px-3 py-2 text-center">{renderCellBadge(row, 'KPI-2.2', row.mps_pct, '%')}</td>
+                    <td className="px-3 py-2 text-center">{renderCellBadge(row, 'KPI-3.1', row.fpy_pct, '%')}</td>
+                    <td className="px-3 py-2 text-center">{renderCellBadge(row, 'KPI-3.2', row.rechazo_lotes_pct, '%')}</td>
+                    <td className="px-3 py-2 text-center">{renderCellBadge(row, 'KPI-4.1', row.dos_dias, 'd', 1)}</td>
+                    <td className="px-3 py-2 text-center">{renderCellBadge(row, 'KPI-4.2', row.otif_pct, '%')}</td>
+                    <td className="px-3 py-2 text-center">{renderCellBadge(row, 'KPI-5.1', row.cierre_ehs_pct, '%')}</td>
+                    <td className="px-3 py-2 text-center">{renderCellBadge(row, 'KPI-5.2', row.ltifr, '')}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

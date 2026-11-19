@@ -10,24 +10,33 @@ import {
   PERSONAS,
   SECTORS,
 } from '../../data/kpiCatalogEnriched';
+import { getActivePointLabel } from '../../utils/chartConfig';
 import { formatCurrencyMeur, formatIntEs, formatNumberEs } from '../../utils/formatters';
 import { ALL_KPI_CODES } from '../../utils/kpiEngine';
 import type {
+  DivisionFilter,
   EvaluatedKpi,
   KpiStatus,
+  PeriodFilter,
   PeriodSnapshot,
   PersonaId,
   SectorId,
   SectorInfo,
 } from '../../types/kpi';
+import { ExecutiveHeatmap } from '../charts/ExecutiveHeatmap';
+import { AcronymText } from '../common/AcronymText';
 import { KpiCard } from '../common/KpiCard';
 import { StatusBadge } from '../common/StatusBadge';
 
 interface ExecutiveOverviewProps {
   snapshot: PeriodSnapshot;
   persona: PersonaId;
-  onInspectKpi: (kpi: EvaluatedKpi) => void;
+  onInspectKpi: (
+    kpi: EvaluatedKpi,
+    context?: { period: PeriodFilter; division: DivisionFilter }
+  ) => void;
   onSelectSector: (sectorId: SectorId) => void;
+  onSelectPeriod?: (period: PeriodFilter) => void;
 }
 
 interface SummaryMetricCard {
@@ -205,7 +214,7 @@ function buildExecutiveSummaryCards(snapshot: PeriodSnapshot, persona: PersonaId
       sublabel: `Margen Op.: ${kpis['KPI-1.2'].formattedValue}`,
     },
     {
-      label: 'Backlog & Semáforo Global',
+      label: 'Backlog (9M 2026) & Semáforo',
       value: CORPORATE_CONTEXT.backlogQ3_2026,
       sublabel: `${counts.optimo} Ópt. · ${counts.preventivo} Prev. · ${counts.critico} Crít. (vs. ${CORPORATE_CONTEXT.backlogPre2022} pre-22)`,
     },
@@ -225,6 +234,7 @@ export function ExecutiveOverview({
   persona,
   onInspectKpi,
   onSelectSector,
+  onSelectPeriod,
 }: ExecutiveOverviewProps) {
   const [expandedSecondaryFor, setExpandedSecondaryFor] = useState<PersonaId | null>(null);
   const [protocolScope, setProtocolScope] = useState<'persona' | 'all'>('persona');
@@ -301,11 +311,13 @@ export function ExecutiveOverview({
             kpi={leadingKpi}
             onInspect={onInspectKpi}
             highlighted={isFocus}
+            activePointLabel={getActivePointLabel(snapshot.period, snapshot.isDivisionalQuarterlyOnly)}
           />
           <KpiCard
             kpi={laggingKpi}
             onInspect={onInspectKpi}
             highlighted={isFocus}
+            activePointLabel={getActivePointLabel(snapshot.period, snapshot.isDivisionalQuarterlyOnly)}
           />
         </div>
       </div>
@@ -340,6 +352,14 @@ export function ExecutiveOverview({
           </div>
         ))}
       </section>
+
+      {/* Year-at-a-Glance Semaphore Heatmap */}
+      <ExecutiveHeatmap
+        snapshot={snapshot}
+        persona={persona}
+        onSelectPeriod={onSelectPeriod}
+        onInspectKpi={onInspectKpi}
+      />
 
       {/* Priority Sectors — Minimalist Hierarchy */}
       <section className="space-y-5">
@@ -390,14 +410,14 @@ export function ExecutiveOverview({
         )}
       </section>
 
-      {/* Compact Decision Protocols List (RF-04) */}
+      {/* Compact Decision Protocols List */}
       <section className="rhm-card overflow-hidden rounded-xl">
         <div
           className="flex flex-wrap items-center justify-between gap-2.5 border-b px-4 py-3 sm:px-5"
           style={{ borderColor: 'var(--border-color)' }}
         >
           <h3 className="font-display text-sm font-semibold tracking-tight text-[var(--text-primary)]">
-            Protocolos Activos y Decisiones Sugeridas (RF-04)
+            Protocolos Activos y Decisiones Sugeridas
           </h3>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -489,7 +509,7 @@ export function ExecutiveOverview({
                       </span>
                     </div>
                     <p className="text-[11px] leading-relaxed text-[var(--text-secondary)]">
-                      {kpi.advisoryNote ?? kpi.meta.protocolo}
+                      <AcronymText text={kpi.advisoryNote ?? kpi.meta.protocolo} />
                     </p>
                   </div>
 

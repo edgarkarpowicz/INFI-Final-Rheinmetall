@@ -232,6 +232,12 @@ export interface BaseFormulaInput {
   value: string;
 }
 
+export interface KpiMomentum {
+  deltaText: string;
+  comparisonLabel: string;
+  direction: 'improving' | 'worsening' | 'flat';
+}
+
 export interface EvaluatedKpi {
   meta: EnrichedKpiMeta;
   value: number;
@@ -239,6 +245,7 @@ export interface EvaluatedKpi {
   status: KpiStatus;
   compliancePct: number;
   deltaLabel: string;
+  momentum?: KpiMomentum;
   advisoryNote?: string;
   actionBrief?: string;
   protocolTriggered: boolean;

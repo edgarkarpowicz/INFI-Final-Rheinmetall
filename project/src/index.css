@@ -33,6 +33,10 @@
 
   --chart-grid: #dfe5ee;
   --chart-axis: #64748b;
+  --chart-div-1: #1d5b8c;
+  --chart-div-2: #4b83b8;
+  --chart-div-3: #2f855a;
+  --chart-neutral: #64748b;
   --tooltip-bg: #f8f9fb;
   --tooltip-border: #cbd5e1;
 
@@ -85,6 +89,10 @@
 
   --chart-grid: #242d3a;
   --chart-axis: #8e9bab;
+  --chart-div-1: #5ea3db;
+  --chart-div-2: #8ec1eb;
+  --chart-div-3: #54a87e;
+  --chart-neutral: #8e9bab;
   --tooltip-bg: #181e26;
   --tooltip-border: #364253;
 
@@ -155,4 +163,21 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
   border-radius: 4px;
+}
+
+.rhm-abbr {
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent-blue);
+  color: inherit;
+  font-weight: 600;
+  cursor: help;
+  border-radius: 2px;
+  transition: color 120ms ease, background-color 120ms ease;
+}
+
+.rhm-abbr:hover,
+.rhm-abbr:focus-visible {
+  color: var(--accent-blue);
+  background-color: var(--accent-blue-soft);
+  outline: none;
 }

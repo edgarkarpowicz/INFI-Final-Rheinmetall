@@ -2,17 +2,33 @@ import {
   CartesianGrid,
   ComposedChart,
   Line,
-  ReferenceArea,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
 import { DATASET } from '../../data/kpiCatalogEnriched';
+import type { PeriodFilter } from '../../types/kpi';
+import {
+  getActiveMonthHighlight,
+  getMonthIdFromCorto,
+  KPI_CHART_META,
+} from '../../utils/chartConfig';
 import { formatNumberEs } from '../../utils/formatters';
+import { evaluateStatus } from '../../utils/kpiEngine';
+import {
+  buildKpiThresholdElements,
+  buildMonthlyGuideElements,
+  makeSemaphoreDot,
+  TOOLTIP_STYLE,
+} from './chartGuides';
 
-export function DosBandChart() {
+interface DosBandChartProps {
+  period?: PeriodFilter;
+  onSelectPeriod?: (p: PeriodFilter) => void;
+}
+
+export function DosBandChart({ period, onSelectPeriod }: DosBandChartProps) {
   const data = DATASET.serie_mensual_2026.map((m) => ({
     mes: m.corto,
     dos: m.kpi_4_1_dos,
@@ -20,6 +36,9 @@ export function DosBandChart() {
     inv: m.inv_prom,
     cons: m.mat_cons,
   }));
+
+  const highlight = getActiveMonthHighlight(period);
+  const domain = KPI_CHART_META['KPI-4.1'].monthlyDomain;
 
   return (
     <div className="rhm-card rounded-xl p-5">
@@ -30,6 +49,9 @@ export function DosBandChart() {
           </h4>
           <p className="text-xs text-[var(--text-secondary)]">
             Zona sombreada verde = banda óptima <strong>65 – 80 días</strong>. Q1–Q2 refleja acumulación estratégica (~€2.000M en nitrocelulosa y aceros balísticos); Q3–Q4 normaliza capital de trabajo.
+            {onSelectPeriod && (
+              <span className="ml-1.5 text-[var(--accent-blue)]">· Clic en un mes para filtrar</span>
+            )}
           </p>
         </div>
         <div className="flex flex-wrap gap-2 text-[11px]">
@@ -42,43 +64,46 @@ export function DosBandChart() {
         </div>
       </div>
 
-      <div className="h-72 w-full">
+      <div className={`h-72 w-full ${onSelectPeriod ? 'cursor-pointer' : ''}`}>
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+          <ComposedChart
+            data={data}
+            margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
+            onClick={(state) => {
+              if (!onSelectPeriod || state?.activeLabel == null) return;
+              const next = getMonthIdFromCorto(String(state.activeLabel));
+              if (next) onSelectPeriod(next);
+            }}
+          >
             <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
             <XAxis dataKey="mes" tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
             <YAxis
-              domain={[45, 100]}
+              domain={domain}
               tick={{ fill: 'var(--chart-axis)', fontSize: 11 }}
               unit=" d"
             />
             <Tooltip
-              contentStyle={{
-                backgroundColor: 'var(--tooltip-bg)',
-                borderColor: 'var(--tooltip-border)',
-                borderRadius: '8px',
-                color: 'var(--text-primary)',
-                fontSize: '12px',
-              }}
+              contentStyle={TOOLTIP_STYLE}
               formatter={(value, name) => {
-                if (name === 'dos') return [`${formatNumberEs(Number(value), 1)} días`, 'KPI-4.1 DOS'];
+                if (name === 'dos' || String(name).includes('DOS')) {
+                  const num = Number(value);
+                  const st = evaluateStatus('KPI-4.1', num);
+                  return [`${formatNumberEs(num, 1)} días · ${st}`, 'KPI-4.1 DOS'];
+                }
                 return [String(value), String(name)];
               }}
             />
-            {/* Calm optimal band 65–80 days */}
-            <ReferenceArea y1={65} y2={80} fill="#2f855a" fillOpacity={0.09} />
-            <ReferenceArea y1={80} y2={95} fill="#b7791f" fillOpacity={0.05} />
-            <ReferenceArea y1={50} y2={65} fill="#b7791f" fillOpacity={0.05} />
-            <ReferenceLine y={80} stroke="#2f855a" strokeDasharray="4 4" label={{ value: 'Máx 80 d', fill: 'var(--status-green-text)', fontSize: 10, position: 'insideTopRight' }} />
-            <ReferenceLine y={65} stroke="#2f855a" strokeDasharray="4 4" label={{ value: 'Mín 65 d', fill: 'var(--status-green-text)', fontSize: 10, position: 'insideBottomRight' }} />
-            <ReferenceLine y={95} stroke="#b84a4a" strokeDasharray="2 3" />
+            {buildKpiThresholdElements('KPI-4.1', domain)}
+            {buildMonthlyGuideElements({ period, includeForecast: true })}
             <Line
               type="monotone"
               dataKey="dos"
-              stroke="#2b6cb0"
+              name="KPI-4.1 DOS (días)"
+              stroke="var(--accent-blue)"
               strokeWidth={2.5}
-              dot={{ r: 3.5, fill: '#2b6cb0', strokeWidth: 1.5, stroke: 'var(--bg-surface)' }}
-              activeDot={{ r: 5 }}
+              dot={makeSemaphoreDot('KPI-4.1', highlight, 'dos')}
+              activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg-surface)' }}
+              isAnimationActive={false}
             />
           </ComposedChart>
         </ResponsiveContainer>

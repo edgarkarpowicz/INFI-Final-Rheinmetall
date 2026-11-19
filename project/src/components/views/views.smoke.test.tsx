@@ -26,13 +26,20 @@ describe('Dashboard UI Views & Layout — Render Smoke Tests', () => {
     expect(html9m).not.toContain('Consolidado Grupo:');
     expect(html9m).toContain('19.100,0M');
     expect(html9m).toContain('1.340,16M');
+    expect(html9m).toContain('Mapa Semafórico 2026');
+    expect(html9m).toContain('Ene');
+    expect(html9m).toContain('Dic');
     expect(html9m).toContain('KPI-1.1');
     expect(html9m).toContain('KPI-5.2');
-    expect(html9m).toContain('Alerta CapEx:');
-    expect(html9m).toContain('Demanda &gt; 2,0x: aprobar ampliación fabril');
-    expect(html9m).toContain('Acción:');
-    expect(html9m).toContain('Indexar contratos y contener OPEX no crítico');
+    const plain9m = html9m.replace(/<[^>]+>/g, '').replace(/&gt;/g, '>');
+    expect(plain9m).toContain('Alerta Inversión (CapEx):');
+    expect(plain9m).toContain('Demanda > 2,0x: aprobar ampliación fabril e inversión (CapEx)');
+    expect(plain9m).toContain('Acción:');
+    expect(plain9m).toContain('Indexar contratos y contener gastos operativos (OPEX) no críticos');
+    expect(plain9m).toContain('(Q1→Q3)');
+    expect(html9m).toContain('Gastos Operativos (Operating Expenditure)');
     expect(html9m).not.toContain('sectores adicionales');
+    expect(html9m).not.toMatch(/RF-0[1-5]|SRS §|ANX-/);
 
     const snapFy = getPeriodSnapshot('FY-2026', 'Grupo Consolidado');
     const htmlFyCoo = renderToStaticMarkup(
@@ -131,8 +138,11 @@ describe('Dashboard UI Views & Layout — Render Smoke Tests', () => {
     );
     expect(sidebarHtml).toContain('RHEINMETALL');
     expect(sidebarHtml).toContain('Divisiones (3)');
-    expect(sidebarHtml).toContain('Perfil Decisor (SRS §5)');
+    expect(sidebarHtml).toContain('Perfil Decisor');
+    expect(sidebarHtml).not.toContain('Ver Presentación');
     expect(sidebarHtml).toContain('Modo Sala Control (Oscuro)');
+    expect(sidebarHtml).not.toMatch(/RF-0[1-5]|SRS §|ANX-/);
+    expect(divHtml).not.toMatch(/RF-0[1-5]|SRS §|ANX-/);
 
     const idxDiv = sidebarHtml.indexOf('Divisiones (3)');
     const idxOver = sidebarHtml.indexOf('Tablero Ejecutivo');
@@ -197,12 +207,14 @@ describe('Dashboard UI Views & Layout — Render Smoke Tests', () => {
         dataOriginLabel="100% Anclado Reporte 9M Real"
         isDivisionalQuarterlyOnly={true}
         onOpenMobileMenu={() => {}}
+        onTogglePlay={() => {}}
       />
     );
     expect(topBarHtml).toContain('Tablero Ejecutivo Consolidado');
     expect(topBarHtml).toContain('VP Compras');
     expect(topBarHtml).toContain('Seleccionar división operativa');
     expect(topBarHtml).toContain('Vehicle Systems (Kassel / Telford)');
+    expect(topBarHtml).toContain('Reproducir');
 
     const topBarDivisionsHtml = renderToStaticMarkup(
       <TopBar
@@ -236,17 +248,21 @@ describe('Dashboard UI Views & Layout — Render Smoke Tests', () => {
       expect(html).toContain(sector.objetivoId);
       expect(html).toContain(sector.nombre);
       expect(html).toContain('Foco');
+      expect(html).not.toMatch(/RF-0[1-5]|SRS §|ANX-/);
     }
   });
 
-  it('renders MethodologyView cleanly', () => {
+  it('renders MethodologyView cleanly without internal spec tags', () => {
     const methHtml = renderToStaticMarkup(<MethodologyView />);
     expect(methHtml).toContain('SRC-01');
     expect(methHtml).toContain('AQAP-2110');
     expect(methHtml).toContain('ISO 45001');
+    expect(methHtml).toContain('Capa de Datos Corporativos Reales');
+    expect(methHtml).toContain('Capa de Datos Industriales Simulados Calibrados');
+    expect(methHtml).not.toMatch(/RF-0[1-5]|SRS §|ANX-|RHM-UBP-/);
   });
 
-  it('renders KpiDetailModal for all 10 KPIs with formula and protocol', () => {
+  it('renders KpiDetailModal for all 10 KPIs with formula, trajectory, and protocol without spec tags', () => {
     const snap = getPeriodSnapshot('9M-2026', 'Grupo Consolidado');
     for (const code of ALL_KPI_CODES) {
       const kpi = snap.kpis[code];
@@ -258,12 +274,21 @@ describe('Dashboard UI Views & Layout — Render Smoke Tests', () => {
           onClose={() => {}}
         />
       );
+      const plainText = html
+        .replace(/<[^>]+>/g, '')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&');
       const unescaped = html.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
       expect(unescaped).toContain(code);
       expect(unescaped).toContain(kpi.meta.unidad);
       expect(unescaped).toContain(kpi.meta.indicadoresBase[0]);
-      expect(unescaped).toContain(kpi.meta.protocolo);
+      expect(plainText).toContain(kpi.meta.protocolo);
       expect(unescaped).toContain(kpi.meta.frecuenciaMedicion);
+      expect(plainText).toMatch(/^Capa (1|2|1 \+ 2)|Capa (1|2|1 \+ 2)/);
+      expect(plainText).not.toContain('3. Datos Industriales');
+      expect(unescaped).toContain('Trayectoria 2026');
+      expect(unescaped).not.toMatch(/RF-0[1-5]|SRS §|ANX-|RHM-UBP-/);
     }
   });
 });

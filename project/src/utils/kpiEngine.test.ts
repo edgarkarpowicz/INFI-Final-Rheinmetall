@@ -100,4 +100,22 @@ describe('Rheinmetall KPI Engine — Excel Parity & Threshold Rules', () => {
     expect(snap.kpis['KPI-1.2'].value).toBe(21.4);
     expect(snap.rawTotals).toBeUndefined();
   });
+
+  it('computes period-over-period momentum cleanly across months, quarters, and rollups', () => {
+    const jan = getPeriodSnapshot('2026-01', 'Grupo Consolidado');
+    expect(jan.kpis['KPI-2.1'].momentum).toBeUndefined();
+
+    const snap9m = getPeriodSnapshot('9M-2026', 'Grupo Consolidado');
+    expect(snap9m.kpis['KPI-2.1'].momentum?.direction).toBe('improving');
+    expect(snap9m.kpis['KPI-2.1'].momentum?.comparisonLabel).toBe('(Q1→Q3)');
+    expect(snap9m.kpis['KPI-4.1'].momentum?.direction).toBe('improving');
+
+    const jul = getPeriodSnapshot('2026-07', 'Grupo Consolidado');
+    expect(jul.kpis['KPI-3.2'].momentum?.direction).toBe('worsening');
+    expect(jul.kpis['KPI-3.2'].momentum?.comparisonLabel).toBe('vs. Jun');
+
+    const nov = getPeriodSnapshot('2026-11', 'Grupo Consolidado');
+    expect(nov.kpis['KPI-3.2'].momentum?.direction).toBe('improving');
+    expect(nov.kpis['KPI-3.2'].momentum?.comparisonLabel).toBe('vs. Oct');
+  });
 });

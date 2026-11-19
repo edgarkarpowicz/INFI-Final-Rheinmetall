@@ -140,7 +140,7 @@ export const PRIMARY_SOURCES: PrimarySourceRef[] = [
   {
     id: 'SRC-01',
     documento: 'Rheinmetall AG — Financial Reports (Annual Report FY25 & Q1–Q3 2026)',
-    uso: 'Ventas consolidadas (€9.935M FY25; €8.376M 9M26), Rheinmetall Nomination (€19.100M 9M26), Backlog (€78.000M Q3 2026) y Margen Operativo (18,5% FY25; 16,0% 9M26).',
+    uso: 'Ventas consolidadas (€9.935M FY25; €8.376M 9M26), Rheinmetall Nomination (€19.100M 9M26), Backlog (€78.000M 9M 2026) y Margen Operativo (18,5% FY25; 16,0% 9M26).',
     url: 'https://www.rheinmetall.com/en/investor-relations/publications/financial-publications-and-presentations',
   },
   {
@@ -196,7 +196,7 @@ const ANNEX_ENRICHMENT: Record<KpiCode, AnnexEnrichment> = {
     objetivoId: 'OE-01',
     isLeading: true,
     frecuenciaMedicion: 'Trimestral (seguimiento mensual)',
-    capaDatos: '1. Datos Corporativos Reales (Auditados / Públicos)',
+    capaDatos: 'Capa 1 · Datos Corporativos Reales (Auditados / Públicos)',
     descripcionProposito:
       'Mide el cociente entre el valor monetario de nuevos contratos firmados (Rheinmetall Nomination) y las ventas facturadas en el mismo período. Su propósito es anticipar la carga fabril futura a 12–36 meses y dimensionar las inversiones de capacidad instalada (CapEx).',
     preguntaNegocio:
@@ -223,7 +223,7 @@ const ANNEX_ENRICHMENT: Record<KpiCode, AnnexEnrichment> = {
     objetivoId: 'OE-01',
     isLeading: false,
     frecuenciaMedicion: 'Trimestral (cierre contable)',
-    capaDatos: '1. Datos Corporativos Reales (Auditados / Públicos)',
+    capaDatos: 'Capa 1 · Datos Corporativos Reales (Auditados / Públicos)',
     descripcionProposito:
       'Representa el porcentaje de utilidad operativa (EBIT ajustado) generado por cada euro facturado. Audita que el acelerado crecimiento del volumen de ventas no deteriore la rentabilidad por sobrecostos de expansión, inflación de insumos o penalidades.',
     preguntaNegocio:
@@ -250,7 +250,7 @@ const ANNEX_ENRICHMENT: Record<KpiCode, AnnexEnrichment> = {
     objetivoId: 'OE-02',
     isLeading: true,
     frecuenciaMedicion: 'Diaria / Semanal (consolidación mensual)',
-    capaDatos: '3. Datos Industriales Simulados Calibrados (Piso de Planta MES)',
+    capaDatos: 'Capa 2 · Datos Industriales Simulados Calibrados (Piso de Planta MES)',
     descripcionProposito:
       'Métrica compuesta estándar en manufactura de clase mundial que multiplica Disponibilidad × Rendimiento × Calidad. Permite identificar pérdidas ocultas de capacidad (microparadas, tiempos excesivos de cambio de formato, averías o baja velocidad de ciclo) en las líneas automatizadas de forja, mecanizado y llenado.',
     preguntaNegocio:
@@ -278,7 +278,7 @@ const ANNEX_ENRICHMENT: Record<KpiCode, AnnexEnrichment> = {
     objetivoId: 'OE-02',
     isLeading: false,
     frecuenciaMedicion: 'Semanal y Mensual',
-    capaDatos: '3. Datos Industriales Simulados Calibrados (Piso de Planta MES)',
+    capaDatos: 'Capa 2 · Datos Industriales Simulados Calibrados (Piso de Planta MES)',
     descripcionProposito:
       'Mide el grado de adherencia entre la cantidad de unidades o sistemas efectivamente fabricados y liberados por planta respecto al volumen comprometido en el Programa Maestro de Producción (MPS). Garantiza la sincronización entre fábrica y compromisos contractuales estatales.',
     preguntaNegocio:
@@ -305,7 +305,7 @@ const ANNEX_ENRICHMENT: Record<KpiCode, AnnexEnrichment> = {
     objetivoId: 'OE-03',
     isLeading: true,
     frecuenciaMedicion: 'Diaria (por lote) y Mensual',
-    capaDatos: '3. Datos Industriales Simulados Calibrados (QMS AQAP-2110)',
+    capaDatos: 'Capa 2 · Datos Industriales Simulados Calibrados (Calidad AQAP-2110)',
     descripcionProposito:
       'Mide el porcentaje de unidades que completan la fabricación cumpliendo todas las tolerancias dimensionales, metalúrgicas y electrónicas en el primer intento, sin retrabajo ni descarte (scrap). Evita desperdicio de insumos críticos y pérdida de horas-hombre en líneas saturadas.',
     preguntaNegocio:
@@ -332,7 +332,7 @@ const ANNEX_ENRICHMENT: Record<KpiCode, AnnexEnrichment> = {
     objetivoId: 'OE-03',
     isLeading: false,
     frecuenciaMedicion: 'Mensual y Trimestral',
-    capaDatos: '2. Datos Híbridos Calibrados (Anclaje Público + Telemetría)',
+    capaDatos: 'Capa 1 + 2 · Anclaje Público + Telemetría Calibrada (GQAR)',
     descripcionProposito:
       'Cuantifica el porcentaje de lotes terminados que son rechazados, observados o retenidos durante las auditorías finales y pruebas balísticas junto a los representantes gubernamentales de calidad (GQAR). Mitiga uno de los cuellos de botella operativos más sensibles de Rheinmetall en 2026.',
     preguntaNegocio:
@@ -359,7 +359,7 @@ const ANNEX_ENRICHMENT: Record<KpiCode, AnnexEnrichment> = {
     objetivoId: 'OE-04',
     isLeading: true,
     frecuenciaMedicion: 'Mensual y Trimestral',
-    capaDatos: '2. Datos Híbridos Calibrados (Anclaje Público + SAP MM)',
+    capaDatos: 'Capa 1 + 2 · Anclaje Público + Telemetría Calibrada (SAP MM)',
     descripcionProposito:
       'Indica la cantidad promedio de días que el inventario disponible de materias primas y componentes en proceso puede abastecer la manufactura al ritmo actual de consumo. Equilibra el riesgo de parada por desabastecimiento frente a la inmovilización excesiva de capital de trabajo.',
     preguntaNegocio:
@@ -387,7 +387,7 @@ const ANNEX_ENRICHMENT: Record<KpiCode, AnnexEnrichment> = {
     objetivoId: 'OE-04',
     isLeading: false,
     frecuenciaMedicion: 'Mensual (alertas semanales)',
-    capaDatos: '3. Datos Industriales Simulados Calibrados (SCM / SAP Ariba)',
+    capaDatos: 'Capa 2 · Datos Industriales Simulados Calibrados (Compras / SAP Ariba)',
     descripcionProposito:
       'Mide el porcentaje de órdenes de compra de materias primas críticas (aceros especiales, precursores químicos, nitrocelulosa, microelectrónica) entregadas simultáneamente en la fecha pactada (On-Time) y en la cantidad/especificación exacta (In-Full). Audita la resiliencia de la cadena Tier-1.',
     preguntaNegocio:
@@ -414,7 +414,7 @@ const ANNEX_ENRICHMENT: Record<KpiCode, AnnexEnrichment> = {
     objetivoId: 'OE-05',
     isLeading: true,
     frecuenciaMedicion: 'Semanal y Mensual',
-    capaDatos: '3. Datos Industriales Simulados Calibrados (SAP EHS)',
+    capaDatos: 'Capa 2 · Datos Industriales Simulados Calibrados (Seguridad SAP EHS)',
     descripcionProposito:
       'Mide el porcentaje de condiciones inseguras, auditorías ATEX (atmósferas explosivas) y cuasi-accidentes (near-misses) mitigados y verificados dentro del plazo acordado (SLA). Impulsa la prevención activa antes de que ocurran lesiones personales o siniestros industriales.',
     preguntaNegocio:
@@ -441,7 +441,7 @@ const ANNEX_ENRICHMENT: Record<KpiCode, AnnexEnrichment> = {
     objetivoId: 'OE-05',
     isLeading: false,
     frecuenciaMedicion: 'Mensual (reporte inmediato de incidentes)',
-    capaDatos: '2. Datos Híbridos Calibrados (Anclaje ESG ISO 45001)',
+    capaDatos: 'Capa 1 + 2 · Anclaje Público ESG + Telemetría Calibrada (ISO 45001)',
     descripcionProposito:
       'Indicador internacional bajo norma ISO 45001 que cuantifica el número de accidentes laborales que provocan al menos un día completo de baja médica por cada millón de horas-hombre trabajadas. Audita la seguridad real ante la rápida incorporación de nuevo personal operativo.',
     preguntaNegocio:

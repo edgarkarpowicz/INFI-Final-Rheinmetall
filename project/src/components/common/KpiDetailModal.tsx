@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import {
+  Activity,
   AlertTriangle,
   Calculator,
   CheckCircle2,
@@ -12,18 +13,51 @@ import {
   Wrench,
   X,
 } from 'lucide-react';
+import {
+  Area,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { SECTOR_BY_ID } from '../../data/kpiCatalogEnriched';
-import type { EvaluatedKpi } from '../../types/kpi';
-import { getStatusVars, StatusBadge, TypologyBadge } from './StatusBadge';
+import type { EvaluatedKpi, PeriodFilter } from '../../types/kpi';
+import {
+  getActiveMonthHighlight,
+  getActiveQuarterShort,
+  getModalChartDomain,
+  KPI_CHART_META,
+} from '../../utils/chartConfig';
+import { formatKpiValue } from '../../utils/formatters';
+import { evaluateStatus } from '../../utils/kpiEngine';
+import {
+  buildKpiThresholdElements,
+  buildMonthlyGuideElements,
+  makeSemaphoreDot,
+  TOOLTIP_STYLE,
+} from '../charts/chartGuides';
+import { AcronymText } from './AcronymText';
+import { getMomentumDisplay, getStatusVars, StatusBadge, TypologyBadge } from './StatusBadge';
 
 interface KpiDetailModalProps {
   kpi: EvaluatedKpi | null;
   periodLabel: string;
   divisionLabel: string;
+  activePeriod?: PeriodFilter;
   onClose: () => void;
 }
 
-export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: KpiDetailModalProps) {
+export function KpiDetailModal({
+  kpi,
+  periodLabel,
+  divisionLabel,
+  activePeriod,
+  onClose,
+}: KpiDetailModalProps) {
   useEffect(() => {
     if (!kpi) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -37,6 +71,18 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
 
   const sector = SECTOR_BY_ID[kpi.meta.sectorId];
   const sv = getStatusVars(kpi.status);
+  const momentumView = kpi.momentum ? getMomentumDisplay(kpi.momentum) : null;
+  const code = kpi.meta.codigo;
+  const chartMeta = KPI_CHART_META[code];
+  const isMonthlySeries = kpi.trendSeries.length > 4;
+  const modalDomain = getModalChartDomain(
+    code,
+    kpi.trendSeries.map((pt) => pt.value)
+  );
+  const activeHighlight = isMonthlySeries
+    ? getActiveMonthHighlight(activePeriod)
+    : getActiveQuarterShort(activePeriod);
+  const modalGradId = `modal-area-${code.replace('.', '-')}`;
 
   return (
     <div
@@ -118,6 +164,14 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
               <div className="mt-1 font-mono-num text-[11px] text-[var(--text-secondary)]">
                 {kpi.deltaLabel}
               </div>
+              {momentumView && (
+                <div
+                  className="mt-0.5 font-mono-num text-[11px] font-semibold"
+                  style={{ color: momentumView.color }}
+                >
+                  {momentumView.label}
+                </div>
+              )}
               <div className="mt-2 border-t pt-1.5 text-[11px] text-[var(--text-muted)]" style={{ borderColor: 'var(--border-color)' }}>
                 Unidad: <strong className="font-medium text-[var(--text-secondary)]">{kpi.meta.unidad}</strong>
               </div>
@@ -131,7 +185,7 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
               }}
             >
               <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                <Calculator className="h-3.5 w-3.5 text-[#007EC1]" />
+                <Calculator className="h-3.5 w-3.5 text-[var(--accent-blue)]" />
                 Fórmula Matemática & Variables Base ({periodLabel})
               </div>
               <div className="font-mono-num mt-2 rounded border border-[var(--border-color)] bg-[var(--bg-canvas)] px-3 py-2 text-xs font-semibold text-[var(--accent-blue)]">
@@ -155,7 +209,74 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
             </div>
           </div>
 
-          {/* Protocolo de Decisión (RF-04) */}
+          {/* 2026 Trajectory vs SMART Target */}
+          <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-4">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--accent-blue)]">
+                <Activity className="h-4 w-4" />
+                Trayectoria 2026 vs. {chartMeta.targetLabel}
+              </div>
+              <span className="text-[11px] text-[var(--text-muted)]">
+                {isMonthlySeries
+                  ? 'Serie mensual consolidada (Ene–Sep real/calibrado · Oct–Dic proyección)'
+                  : `Serie trimestral divisional · ${divisionLabel}`}
+              </span>
+            </div>
+            <div className="h-48 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={kpi.trendSeries} margin={{ top: 8, right: 16, left: 0, bottom: 2 }}>
+                  <defs>
+                    <linearGradient id={modalGradId} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--accent-blue)" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="var(--accent-blue)" stopOpacity={0.01} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                  <XAxis dataKey="label" tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
+                  <YAxis domain={modalDomain} tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} width={46} />
+                  <Tooltip
+                    contentStyle={TOOLTIP_STYLE}
+                    formatter={(val) => {
+                      const num = Number(val);
+                      const st = evaluateStatus(code, num);
+                      return [`${formatKpiValue(code, num)} · ${st}`, code];
+                    }}
+                  />
+                  {buildKpiThresholdElements(code, modalDomain)}
+                  {isMonthlySeries ? (
+                    buildMonthlyGuideElements({ period: activePeriod, includeForecast: true })
+                  ) : (
+                    typeof activeHighlight === 'string' && (
+                      <ReferenceLine
+                        x={activeHighlight}
+                        stroke="var(--accent-blue)"
+                        strokeWidth={2}
+                        strokeOpacity={0.65}
+                      />
+                    )
+                  )}
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    fill={`url(#${modalGradId})`}
+                    stroke="none"
+                    isAnimationActive={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="var(--accent-blue)"
+                    strokeWidth={2.4}
+                    dot={makeSemaphoreDot(code, activeHighlight, `modal-${code}`)}
+                    activeDot={{ r: 6, stroke: 'var(--bg-surface)', strokeWidth: 2 }}
+                    isAnimationActive={false}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Protocolo de Decisión */}
           <div
             className="rounded-lg border p-4"
             style={{
@@ -168,7 +289,7 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
                 <>
                   <AlertTriangle className="h-4 w-4" style={{ color: sv.text }} />
                   <span style={{ color: sv.text }}>
-                    Protocolo de Decisión y Acción Correctiva (RF-04 — ACTIVO)
+                    Protocolo de Decisión y Acción Correctiva — ACTIVO
                   </span>
                 </>
               ) : (
@@ -180,7 +301,9 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
                 </>
               )}
             </div>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--text-primary)]">{kpi.meta.protocolo}</p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--text-primary)]">
+              <AcronymText text={kpi.meta.protocolo} />
+            </p>
             {kpi.advisoryNote && (
               <p
                 className="mt-2 rounded border px-3 py-1.5 text-xs font-semibold text-[var(--text-primary)]"
@@ -189,16 +312,16 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
                   borderColor: 'var(--border-color)',
                 }}
               >
-                Diagnóstico automático: {kpi.advisoryNote}
+                Diagnóstico automático: <AcronymText text={kpi.advisoryNote} />
               </p>
             )}
           </div>
 
-          {/* Metadata Audit Grid (RF-05) */}
+          {/* Metadata Audit Grid */}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-3">
               <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                <User className="h-3.5 w-3.5 text-[#007EC1]" />
+                <User className="h-3.5 w-3.5 text-[var(--accent-blue)]" />
                 Responsable
               </div>
               <div className="mt-1 text-xs font-semibold text-[var(--text-primary)]">
@@ -207,7 +330,7 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
             </div>
             <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-3">
               <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                <Clock className="h-3.5 w-3.5 text-[#007EC1]" />
+                <Clock className="h-3.5 w-3.5 text-[var(--accent-blue)]" />
                 Frecuencia de Medición
               </div>
               <div className="mt-1 text-xs font-semibold text-[var(--text-primary)]">
@@ -216,20 +339,20 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
             </div>
             <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-3">
               <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                <Wrench className="h-3.5 w-3.5 text-[#007EC1]" />
+                <Wrench className="h-3.5 w-3.5 text-[var(--accent-blue)]" />
                 Herramienta / ETL
               </div>
               <div className="mt-1 text-xs font-semibold text-[var(--text-primary)]">
-                {kpi.meta.herramienta}
+                <AcronymText text={kpi.meta.herramienta} />
               </div>
             </div>
             <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-3">
               <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                <Database className="h-3.5 w-3.5 text-[#007EC1]" />
+                <Database className="h-3.5 w-3.5 text-[var(--accent-blue)]" />
                 Capa de Datos
               </div>
               <div className="mt-1 text-xs font-semibold text-[var(--text-primary)]">
-                {kpi.meta.capaDatos}
+                <AcronymText text={kpi.meta.capaDatos} />
               </div>
             </div>
           </div>
@@ -257,7 +380,7 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
                 <HelpCircle className="h-4 w-4" />
                 Pregunta de Negocio y Metodología del Dato
               </div>
-              <blockquote className="mt-2 border-l-2 border-[#007EC1] pl-3 text-xs italic text-[var(--text-primary)]">
+              <blockquote className="mt-2 border-l-2 border-[var(--accent-blue)] pl-3 text-xs italic text-[var(--text-primary)]">
                 “{kpi.meta.preguntaNegocio}”
               </blockquote>
               <div className="mt-3 text-xs font-semibold text-[var(--text-primary)]">
@@ -273,7 +396,7 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-4">
               <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
-                Umbrales Semafóricos (Anexo RHM-UBP-ANX-2026-02)
+                Umbrales Semafóricos de Control
               </div>
               <div className="mt-2.5 space-y-2 text-xs">
                 <div
@@ -320,7 +443,7 @@ export function KpiDetailModal({ kpi, periodLabel, divisionLabel, onClose }: Kpi
 
             <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-4">
               <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
-                <ShieldCheck className="h-4 w-4 text-[#007EC1]" />
+                <ShieldCheck className="h-4 w-4 text-[var(--accent-blue)]" />
                 Validación Criterios SMART
               </div>
               <dl className="mt-2.5 space-y-1.5 text-xs">

@@ -6,6 +6,7 @@ import type {
   DivisionalRecord,
   EvaluatedKpi,
   KpiCode,
+  KpiMomentum,
   KpiStatus,
   MonthlyRecord,
   PeriodFilter,
@@ -166,14 +167,14 @@ function getPeriodMeta(period: PeriodFilter): { label: string; origin: string } 
 }
 
 const STATIC_ACTION_BRIEFS: Partial<Record<KpiCode, string>> = {
-  'KPI-1.2': 'Indexar contratos y contener OPEX no crítico',
-  'KPI-2.1': 'Atacar factor limitante (SMED, CNC o calibración)',
-  'KPI-2.2': 'Turnos extra y balanceo Unterlüß / Murcia',
+  'KPI-1.2': 'Indexar contratos y contener gastos operativos (OPEX) no críticos',
+  'KPI-2.1': 'Atacar factor limitante: cambios rápidos (SMED), ajuste CNC o calibración',
+  'KPI-2.2': 'Turnos extraordinarios y balanceo Unterlüß / Murcia',
   'KPI-3.1': 'Análisis 5 Porqués y recalibrar visión/ultrasonido',
-  'KPI-3.2': 'Pre-certificación interna previa a inspección GQAR',
-  'KPI-4.2': 'Activar Dual Sourcing y auditoría SQE a proveedores',
-  'KPI-5.1': 'Escalar hallazgos vencidos y bloquear celdas ATEX',
-  'KPI-5.2': 'Safety Stand-Down y re-entrenamiento LOTO / ATEX',
+  'KPI-3.2': 'Pre-certificación interna previa a inspección estatal (GQAR)',
+  'KPI-4.2': 'Activar doble abastecimiento (Dual Sourcing) y auditoría de proveedores (SQE)',
+  'KPI-5.1': 'Escalar hallazgos vencidos y bloquear celdas explosivas (ATEX)',
+  'KPI-5.2': 'Pausa obligatoria de seguridad (Safety Stand-Down) y re-entrenamiento bloqueo de energías (LOTO) / zonas explosivas (ATEX)',
 };
 
 function getWeakestOeeFactor(oeeBreakdown: NonNullable<PeriodSnapshot['oeeBreakdown']>) {
@@ -181,20 +182,20 @@ function getWeakestOeeFactor(oeeBreakdown: NonNullable<PeriodSnapshot['oeeBreakd
     {
       name: 'Disponibilidad',
       val: oeeBreakdown.disponibilidadPct,
-      brief: 'Priorizar Disponibilidad (SMED y manto. preventivo)',
-      action: 'mantenimiento preventivo autónomo y cambios rápidos SMED',
+      brief: 'Priorizar Disponibilidad (cambios rápidos SMED y mantenimiento preventivo)',
+      action: 'mantenimiento preventivo autónomo y cambios rápidos de formato (SMED)',
     },
     {
       name: 'Rendimiento',
       val: oeeBreakdown.rendimientoPct,
-      brief: 'Priorizar Rendimiento (ajuste CNC y microparadas)',
-      action: 'recalibrar parámetros CNC/robóticos y reducir microparadas',
+      brief: 'Priorizar Rendimiento (ajuste control numérico CNC y microparadas)',
+      action: 'recalibrar parámetros de control numérico (CNC) / robóticos y reducir microparadas',
     },
     {
       name: 'Calidad',
       val: oeeBreakdown.calidadPct,
-      brief: 'Priorizar Calidad (calibración herramental y SPC)',
-      action: 'detener estación para ajuste de herramental y control SPC',
+      brief: 'Priorizar Calidad (calibración herramental y control estadístico SPC)',
+      action: 'detener estación para ajuste de herramental y control estadístico de procesos (SPC)',
     },
   ].sort((a, b) => a.val - b.val)[0];
 }
@@ -206,7 +207,7 @@ function getAdvisoryNote(
   oeeBreakdown?: PeriodSnapshot['oeeBreakdown']
 ): string | undefined {
   if (code === 'KPI-1.1' && value > 2.0) {
-    return 'Alerta Positiva (> 2,00x): Aprobar ampliación de capacidad fabril (CapEx) por demanda sostenida.';
+    return 'Alerta Positiva (> 2,00x): Aprobar ampliación de capacidad fabril e inversión de capital (CapEx) por demanda sostenida.';
   }
   if (code === 'KPI-2.1' && status !== 'Óptimo' && oeeBreakdown) {
     const weakest = getWeakestOeeFactor(oeeBreakdown);
@@ -214,7 +215,7 @@ function getAdvisoryNote(
   }
   if (code === 'KPI-4.1' && status !== 'Óptimo') {
     return value > 80
-      ? 'Desvío por exceso (> 80 d): Reprogramar entregas MRP no críticas y acelerar conversión WIP a producto facturable.'
+      ? 'Desvío por exceso (> 80 d): Reprogramar entregas de planificación de materiales (MRP) no críticas y acelerar conversión de trabajo en proceso (WIP) a producto facturable.'
       : 'Desvío por escasez (< 65 d): Disparar órdenes urgentes y activar reservas de nitrocelulosa y aceros balísticos.';
   }
   return undefined;
@@ -227,7 +228,7 @@ function getActionBrief(
   oeeBreakdown?: PeriodSnapshot['oeeBreakdown']
 ): string | undefined {
   if (code === 'KPI-1.1') {
-    if (value > 2.0) return 'Demanda > 2,0x: aprobar ampliación fabril';
+    if (value > 2.0) return 'Demanda > 2,0x: aprobar ampliación fabril e inversión (CapEx)';
     if (status !== 'Óptimo') return 'Auditar licitaciones OTAN pendientes';
     return undefined;
   }
@@ -237,10 +238,149 @@ function getActionBrief(
   }
   if (code === 'KPI-4.1') {
     return value > 80
-      ? 'Exceso stock (> 80 d): reprogramar MRP y WIP'
+      ? 'Exceso de stock (> 80 d): reprogramar entregas MRP y trabajo en proceso (WIP)'
       : 'Riesgo quiebre (< 65 d): compra urgente nitrocelulosa/acero';
   }
   return STATIC_ACTION_BRIEFS[code];
+}
+
+function formatMomentumDelta(code: KpiCode, diff: number): string {
+  const decimals = code === 'KPI-4.1' ? 1 : 2;
+  const threshold = code === 'KPI-4.1' ? 0.05 : 0.005;
+  const sign = diff > threshold ? '+' : diff < -threshold ? '−' : '';
+  const absFormatted = formatNumberEs(Math.abs(diff), decimals);
+  if (code === 'KPI-1.1') return `${sign}${absFormatted}x`;
+  if (code === 'KPI-4.1') return `${sign}${absFormatted} d`;
+  if (code === 'KPI-5.2') return `${sign}${absFormatted}`;
+  return `${sign}${absFormatted} pp`;
+}
+
+function classifyMomentumDirection(
+  code: KpiCode,
+  curr: number,
+  prev: number
+): KpiMomentum['direction'] {
+  if (code === 'KPI-4.1') {
+    if (Math.abs(curr - prev) < 0.05) return 'flat';
+    const dist = (v: number) => (v < 65 ? 65 - v : v > 80 ? v - 80 : 0);
+    const dCurr = dist(curr);
+    const dPrev = dist(prev);
+    if (dCurr === 0 && dPrev === 0) return 'flat';
+    if (dCurr < dPrev) return 'improving';
+    if (dCurr > dPrev) return 'worsening';
+    return 'flat';
+  }
+
+  const diff = curr - prev;
+  if (code === 'KPI-3.2' || code === 'KPI-5.2') {
+    if (diff < -0.005) return 'improving';
+    if (diff > 0.005) return 'worsening';
+    return 'flat';
+  }
+
+  if (diff > 0.005) return 'improving';
+  if (diff < -0.005) {
+    if (code === 'KPI-1.1' && curr >= 1.5) return 'flat';
+    return 'worsening';
+  }
+  return 'flat';
+}
+
+function buildMomentumPair(
+  code: KpiCode,
+  curr: number,
+  prev: number,
+  comparisonLabel: string
+): KpiMomentum {
+  return {
+    deltaText: formatMomentumDelta(code, curr - prev),
+    comparisonLabel,
+    direction: classifyMomentumDirection(code, curr, prev),
+  };
+}
+
+function computeConsolidatedKpiValues(slice: MonthlyRecord[]): Record<KpiCode, number> {
+  const ventas = round2(sum(slice.map((m) => m.ventas)));
+  const pedidos = round2(sum(slice.map((m) => m.pedidos)));
+  const ebit = round2(sum(slice.map((m) => m.ebit)));
+  const pTot = sum(slice.map((m) => m.p_tot));
+  const pConf = sum(slice.map((m) => m.p_conf));
+  const mpsPlan = sum(slice.map((m) => m.mps_plan));
+  const mpsReal = sum(slice.map((m) => m.mps_real));
+  const lotesPres = sum(slice.map((m) => m.lotes_pres));
+  const lotesRet = sum(slice.map((m) => m.lotes_ret));
+  const ocTot = sum(slice.map((m) => m.oc_tot));
+  const ocOtif = sum(slice.map((m) => m.oc_otif));
+  const ehsRep = sum(slice.map((m) => m.ehs_rep));
+  const ehsCer = sum(slice.map((m) => m.ehs_cer));
+  const hhTrab = round2(sum(slice.map((m) => m.hh_trab)));
+  const accBaja = sum(slice.map((m) => m.acc_baja));
+
+  return {
+    'KPI-1.1': round2(pedidos / ventas),
+    'KPI-1.2': round2((ebit / ventas) * 100),
+    'KPI-2.1':
+      slice.length === 1
+        ? slice[0].kpi_2_1_oee
+        : round2(avg(slice.map((m) => m.kpi_2_1_oee))),
+    'KPI-2.2': round2((mpsReal / mpsPlan) * 100),
+    'KPI-3.1': round2((pConf / pTot) * 100),
+    'KPI-3.2': round2((lotesRet / lotesPres) * 100),
+    'KPI-4.1':
+      slice.length === 1
+        ? slice[0].kpi_4_1_dos
+        : round1(avg(slice.map((m) => m.kpi_4_1_dos))),
+    'KPI-4.2': round2((ocOtif / ocTot) * 100),
+    'KPI-5.1': round2((ehsCer / ehsRep) * 100),
+    'KPI-5.2': round2(accBaja / hhTrab),
+  };
+}
+
+const PREV_QUARTER_INDEX: Partial<Record<PeriodFilter, number>> = {
+  'Q2 2026': 0,
+  'Q3 2026': 1,
+  'Q4 2026': 2,
+};
+
+const PREV_QUARTER_LABEL: Partial<Record<PeriodFilter, string>> = {
+  'Q2 2026': 'vs. Q1',
+  'Q3 2026': 'vs. Q2',
+  'Q4 2026': 'vs. Q3',
+};
+
+function computeMomentumForPeriod(
+  code: KpiCode,
+  currentVal: number,
+  period: PeriodFilter,
+  trendSeries: Array<{ label: string; value: number }>,
+  quarterlyValues?: [Record<KpiCode, number>, Record<KpiCode, number>, Record<KpiCode, number>, Record<KpiCode, number>]
+): KpiMomentum | undefined {
+  if (period.startsWith('2026-')) {
+    const idx = Number(period.slice(5)) - 1;
+    if (idx <= 0 || idx >= trendSeries.length) return undefined;
+    return buildMomentumPair(
+      code,
+      trendSeries[idx].value,
+      trendSeries[idx - 1].value,
+      `vs. ${trendSeries[idx - 1].label}`
+    );
+  }
+
+  const qVal = (qIdx: number): number =>
+    quarterlyValues ? quarterlyValues[qIdx][code] : trendSeries[qIdx]?.value ?? currentVal;
+
+  if (period === 'Q1 2026') return undefined;
+  if (period in PREV_QUARTER_INDEX) {
+    const prevIdx = PREV_QUARTER_INDEX[period]!;
+    return buildMomentumPair(code, currentVal, qVal(prevIdx), PREV_QUARTER_LABEL[period]!);
+  }
+  if (period === '9M-2026') {
+    return buildMomentumPair(code, qVal(2), qVal(0), '(Q1→Q3)');
+  }
+  if (period === 'FY-2026') {
+    return buildMomentumPair(code, qVal(3), qVal(0), '(Q1→Q4)');
+  }
+  return undefined;
 }
 
 function buildEvaluatedKpi(
@@ -248,6 +388,7 @@ function buildEvaluatedKpi(
   value: number,
   baseInputs: BaseFormulaInput[],
   trendSeries: Array<{ label: string; value: number }>,
+  momentum?: KpiMomentum,
   oeeBreakdown?: PeriodSnapshot['oeeBreakdown']
 ): EvaluatedKpi {
   const meta = KPI_META_BY_CODE[code];
@@ -265,6 +406,7 @@ function buildEvaluatedKpi(
     status,
     compliancePct,
     deltaLabel,
+    momentum,
     advisoryNote,
     actionBrief,
     protocolTriggered,
@@ -303,17 +445,31 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
     const hhTrab = round2(sum(slice.map((m) => m.hh_trab)));
     const accBaja = sum(slice.map((m) => m.acc_baja));
 
-    // Sheet 3 exact aggregation formulas
-    const kpi11 = round2(pedidos / ventas);
-    const kpi12 = round2((ebit / ventas) * 100);
-    const kpi21 = slice.length === 1 ? slice[0].kpi_2_1_oee : round2(avg(slice.map((m) => m.kpi_2_1_oee)));
-    const kpi22 = round2((mpsReal / mpsPlan) * 100);
-    const kpi31 = round2((pConf / pTot) * 100);
-    const kpi32 = round2((lotesRet / lotesPres) * 100);
-    const kpi41 = slice.length === 1 ? slice[0].kpi_4_1_dos : round1(avg(slice.map((m) => m.kpi_4_1_dos)));
-    const kpi42 = round2((ocOtif / ocTot) * 100);
-    const kpi51 = round2((ehsCer / ehsRep) * 100);
-    const kpi52 = round2(accBaja / hhTrab);
+    const qVals = effectivePeriod.startsWith('2026-')
+      ? undefined
+      : ([
+          computeConsolidatedKpiValues(getMonthlySlice('Q1 2026')),
+          computeConsolidatedKpiValues(getMonthlySlice('Q2 2026')),
+          computeConsolidatedKpiValues(getMonthlySlice('Q3 2026')),
+          computeConsolidatedKpiValues(getMonthlySlice('Q4 2026')),
+        ] as [
+          Record<KpiCode, number>,
+          Record<KpiCode, number>,
+          Record<KpiCode, number>,
+          Record<KpiCode, number>,
+        ]);
+
+    const cVals = computeConsolidatedKpiValues(slice);
+    const kpi11 = cVals['KPI-1.1'];
+    const kpi12 = cVals['KPI-1.2'];
+    const kpi21 = cVals['KPI-2.1'];
+    const kpi22 = cVals['KPI-2.2'];
+    const kpi31 = cVals['KPI-3.1'];
+    const kpi32 = cVals['KPI-3.2'];
+    const kpi41 = cVals['KPI-4.1'];
+    const kpi42 = cVals['KPI-4.2'];
+    const kpi51 = cVals['KPI-5.1'];
+    const kpi52 = cVals['KPI-5.2'];
 
     const dispPct = round2((tReal / tPlan) * 100);
     const rendPct = round2((((cIdeal / 60) * pTot) / tReal) * 100);
@@ -330,8 +486,24 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
       piezasConformes: pConf,
     };
 
+    const makeConsolidatedKpi = (
+      code: KpiCode,
+      val: number,
+      inputs: BaseFormulaInput[],
+      trend: Array<{ label: string; value: number }>,
+      breakdown?: PeriodSnapshot['oeeBreakdown']
+    ) =>
+      buildEvaluatedKpi(
+        code,
+        val,
+        inputs,
+        trend,
+        computeMomentumForPeriod(code, val, effectivePeriod, trend, qVals),
+        breakdown
+      );
+
     const kpis: Record<KpiCode, EvaluatedKpi> = {
-      'KPI-1.1': buildEvaluatedKpi(
+      'KPI-1.1': makeConsolidatedKpi(
         'KPI-1.1',
         kpi11,
         [
@@ -340,7 +512,7 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
         ],
         allMonths.map((m) => ({ label: m.corto, value: m.kpi_1_1_btb }))
       ),
-      'KPI-1.2': buildEvaluatedKpi(
+      'KPI-1.2': makeConsolidatedKpi(
         'KPI-1.2',
         kpi12,
         [
@@ -349,7 +521,7 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
         ],
         allMonths.map((m) => ({ label: m.corto, value: m.kpi_1_2_margen }))
       ),
-      'KPI-2.1': buildEvaluatedKpi(
+      'KPI-2.1': makeConsolidatedKpi(
         'KPI-2.1',
         kpi21,
         [
@@ -360,7 +532,7 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
         allMonths.map((m) => ({ label: m.corto, value: m.kpi_2_1_oee })),
         oeeBreakdown
       ),
-      'KPI-2.2': buildEvaluatedKpi(
+      'KPI-2.2': makeConsolidatedKpi(
         'KPI-2.2',
         kpi22,
         [
@@ -369,7 +541,7 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
         ],
         allMonths.map((m) => ({ label: m.corto, value: m.kpi_2_2_mps }))
       ),
-      'KPI-3.1': buildEvaluatedKpi(
+      'KPI-3.1': makeConsolidatedKpi(
         'KPI-3.1',
         kpi31,
         [
@@ -378,7 +550,7 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
         ],
         allMonths.map((m) => ({ label: m.corto, value: m.kpi_3_1_fpy }))
       ),
-      'KPI-3.2': buildEvaluatedKpi(
+      'KPI-3.2': makeConsolidatedKpi(
         'KPI-3.2',
         kpi32,
         [
@@ -387,7 +559,7 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
         ],
         allMonths.map((m) => ({ label: m.corto, value: m.kpi_3_2_rechazo }))
       ),
-      'KPI-4.1': buildEvaluatedKpi(
+      'KPI-4.1': makeConsolidatedKpi(
         'KPI-4.1',
         kpi41,
         [
@@ -397,7 +569,7 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
         ],
         allMonths.map((m) => ({ label: m.corto, value: m.kpi_4_1_dos }))
       ),
-      'KPI-4.2': buildEvaluatedKpi(
+      'KPI-4.2': makeConsolidatedKpi(
         'KPI-4.2',
         kpi42,
         [
@@ -406,7 +578,7 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
         ],
         allMonths.map((m) => ({ label: m.corto, value: m.kpi_4_2_otif }))
       ),
-      'KPI-5.1': buildEvaluatedKpi(
+      'KPI-5.1': makeConsolidatedKpi(
         'KPI-5.1',
         kpi51,
         [
@@ -415,7 +587,7 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
         ],
         allMonths.map((m) => ({ label: m.corto, value: m.kpi_5_1_ehs }))
       ),
-      'KPI-5.2': buildEvaluatedKpi(
+      'KPI-5.2': makeConsolidatedKpi(
         'KPI-5.2',
         kpi52,
         [
@@ -488,8 +660,22 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
   const qTrend = (getter: (r: DivisionalRecord) => number) =>
     allDivRows.map((r) => ({ label: r.trimestre.replace(' 2026', ''), value: getter(r) }));
 
+  const makeDivisionalKpi = (
+    code: KpiCode,
+    val: number,
+    inputs: BaseFormulaInput[],
+    trend: Array<{ label: string; value: number }>
+  ) =>
+    buildEvaluatedKpi(
+      code,
+      val,
+      inputs,
+      trend,
+      computeMomentumForPeriod(code, val, effectivePeriod, trend)
+    );
+
   const kpis: Record<KpiCode, EvaluatedKpi> = {
-    'KPI-1.1': buildEvaluatedKpi(
+    'KPI-1.1': makeDivisionalKpi(
       'KPI-1.1',
       kpi11,
       [
@@ -498,7 +684,7 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
       ],
       qTrend((r) => r.btb)
     ),
-    'KPI-1.2': buildEvaluatedKpi(
+    'KPI-1.2': makeDivisionalKpi(
       'KPI-1.2',
       kpi12,
       [
@@ -507,49 +693,49 @@ export function getPeriodSnapshot(period: PeriodFilter, division: DivisionFilter
       ],
       qTrend((r) => r.margen_pct)
     ),
-    'KPI-2.1': buildEvaluatedKpi(
+    'KPI-2.1': makeDivisionalKpi(
       'KPI-2.1',
       kpi21,
       [{ label: 'Planta Referencia', value: DIVISION_PLANTS[division] }],
       qTrend((r) => r.oee_pct)
     ),
-    'KPI-2.2': buildEvaluatedKpi(
+    'KPI-2.2': makeDivisionalKpi(
       'KPI-2.2',
       kpi22,
       [{ label: 'Adherencia MPS Divisional', value: `${formatNumberEs(kpi22, 2)}%` }],
       qTrend((r) => r.mps_pct)
     ),
-    'KPI-3.1': buildEvaluatedKpi(
+    'KPI-3.1': makeDivisionalKpi(
       'KPI-3.1',
       kpi31,
       [{ label: 'FPY Divisional (QMS AQAP-2110)', value: `${formatNumberEs(kpi31, 2)}%` }],
       qTrend((r) => r.fpy_pct)
     ),
-    'KPI-3.2': buildEvaluatedKpi(
+    'KPI-3.2': makeDivisionalKpi(
       'KPI-3.2',
       kpi32,
       [{ label: 'Rechazo/Retención GQAR Divisional', value: `${formatNumberEs(kpi32, 2)}%` }],
       qTrend((r) => r.rechazo_lotes_pct)
     ),
-    'KPI-4.1': buildEvaluatedKpi(
+    'KPI-4.1': makeDivisionalKpi(
       'KPI-4.1',
       kpi41,
       [{ label: 'Cobertura Inventario Divisional', value: `${formatNumberEs(kpi41, 1)} días` }],
       qTrend((r) => r.dos_dias)
     ),
-    'KPI-4.2': buildEvaluatedKpi(
+    'KPI-4.2': makeDivisionalKpi(
       'KPI-4.2',
       kpi42,
       [{ label: 'Supplier OTIF Divisional', value: `${formatNumberEs(kpi42, 2)}%` }],
       qTrend((r) => r.otif_pct)
     ),
-    'KPI-5.1': buildEvaluatedKpi(
+    'KPI-5.1': makeDivisionalKpi(
       'KPI-5.1',
       kpi51,
       [{ label: 'Cierre Proactivo EHS Divisional', value: `${formatNumberEs(kpi51, 2)}%` }],
       qTrend((r) => r.cierre_ehs_pct)
     ),
-    'KPI-5.2': buildEvaluatedKpi(
+    'KPI-5.2': makeDivisionalKpi(
       'KPI-5.2',
       kpi52,
       [{ label: 'LTIFR Divisional (ISO 45001)', value: `${formatNumberEs(kpi52, 2)}` }],

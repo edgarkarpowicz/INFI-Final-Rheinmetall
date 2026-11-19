@@ -19,30 +19,103 @@ import { getQuarterlyAndAnnualSummary } from '../../utils/kpiEngine';
 
 type ExplorerTab = 'quarterly' | 'monthly' | 'divisional';
 
+const HYBRID_PRINCIPLES = {
+  principle:
+    'Unimos cifras reales que Rheinmetall informa al mercado con datos de fábrica simulados y calibrados allí donde la operación interna es confidencial.',
+  layers: [
+    {
+      title: 'Capa de Datos Corporativos Reales',
+      level: 'Nivel Macro Financiero, Sostenibilidad y Seguridad',
+      badge: 'Reales y Auditados',
+      accent: 'green' as const,
+      sources:
+        'Reportes Financieros Anuales y Trimestrales oficiales de Rheinmetall AG (2025–2026) e Informe Corporativo de Sostenibilidad y Seguridad Laboral.',
+      scope:
+        'Ventas facturadas (€8.376M), nuevos pedidos (€19.100M), resultado operativo, cartera contratada (€78.000M), stock estratégico extra (~€2.000M), demoras en entregas y accidentabilidad base.',
+      justification:
+        'Garantiza fidelidad contable: el tablero refleja la escala real del negocio y cuadra con lo que la empresa reporta públicamente.',
+      kpis: ['KPI-1.1', 'KPI-1.2', 'KPI-3.2 (ancla)', 'KPI-4.1 (ancla)', 'KPI-5.2 (ancla)'],
+    },
+    {
+      title: 'Capa de Datos Industriales Simulados Calibrados',
+      level: 'Nivel Planta, Calidad y Cadena de Abastecimiento',
+      badge: 'Simulados Calibrados',
+      accent: 'blue' as const,
+      sources:
+        'Normativa de calidad militar de la OTAN (AQAP-2110), ISO 45001 y estándares de manufactura europea, ajustados al crecimiento real de proyectiles de 155 mm (de 70.000 a >700.000 u/año).',
+      scope:
+        'El detalle mensual dentro de las fábricas: eficiencia real de máquinas (OEE), cumplimiento del plan maestro (MPS), piezas aprobadas sin reproceso (FPY), puntualidad de proveedores (OTIF) y cierre preventivo de riesgos.',
+      justification:
+        'Por seguridad nacional y secreto industrial, Rheinmetall no divulga telemetría interna de sus líneas ni entregas por proveedor; calibrar estas señales mantiene el realismo operativo.',
+      kpis: ['KPI-2.1', 'KPI-2.2', 'KPI-3.1', 'KPI-4.2', 'KPI-5.1', 'Desglose mensual 3.2 / 4.1 / 5.2'],
+    },
+  ],
+};
+
+const ETL_FLOW_STEPS = [
+  {
+    step: '01',
+    label: 'Sistemas y Documentos Origen',
+    desc: 'Software corporativo, sensores de planta y registros oficiales',
+  },
+  {
+    step: '02',
+    label: 'Extracción, Transformación y Carga',
+    desc: 'Recolección automática, limpieza y orden mensual',
+  },
+  {
+    step: '03',
+    label: 'Cálculo de Indicadores',
+    desc: 'Fórmulas de negocio y semáforos de alerta',
+  },
+  {
+    step: '04',
+    label: 'Tablero Ejecutivo',
+    desc: 'Visualización unificada para decidir por sector',
+    accent: true,
+  },
+];
+
 const ETL_PLATFORMS = [
   {
-    sistema: 'ERP Corporativo (SAP S/4HANA)',
-    modulos: 'Módulos SD, MM, FI/CO · SAP EWM · SAP Ariba',
+    sistema: 'SAP S/4HANA (Gestión Empresarial Corporativa)',
+    software: 'SAP S/4HANA (Ventas, Materiales y Finanzas), Gestión de Almacenes (EWM) y portal de compras SAP Ariba.',
     alimenta: 'Sector 1 (Ventas) & Sector 4 (Compras y Abastecimiento)',
-    datos: 'Facturación, Rheinmetall Nomination, EBIT, órdenes de compra, valoración de stock e inventario.',
+    resumen:
+      'Registra toda la actividad comercial y administrativa del grupo: contratos adjudicados, facturación a gobiernos, márgenes operativos, compras a proveedores e inventarios valorizados.',
+    documentos:
+      'Contratos adjudicados, facturas a gobiernos, estados de resultados, órdenes de compra y stock valorizado.',
+    kpis: 'Book-to-Bill (1.1), Margen Operativo (1.2), Días de Inventario (4.1) y Supplier OTIF (4.2).',
   },
   {
-    sistema: 'MES (Siemens Opcenter / PLC / SCADA)',
-    modulos: 'Captura automatizada en piso de planta + SAP PP',
+    sistema: 'Siemens Opcenter (Control y Ejecución de Planta)',
+    software: 'Sistema MES Siemens Opcenter conectado a sensores de máquina (PLC/SCADA) y Planificación SAP PP.',
     alimenta: 'Sector 2 (Línea de Producción)',
-    datos: 'Horas planificadas vs. reales, microparadas, setup, ciclo ideal (1,80 min/u) y cumplimiento MPS.',
+    resumen:
+      'Conecta en tiempo real las máquinas y líneas de montaje para medir disponibilidad, ritmo de producción, microparadas y volumen liberado frente al programa maestro.',
+    documentos:
+      'Partes digitales de turno (tiempo activo vs. plan), registro de microparadas, cambios de formato y órdenes cerradas.',
+    kpis: 'Eficiencia Global de Equipos — OEE (2.1) y Cumplimiento del Programa Maestro — MPS (2.2).',
   },
   {
-    sistema: 'QMS — Norma OTAN AQAP-2110',
-    modulos: 'SAP QM · Ensayos No Destructivos · Polígonos Balísticos',
+    sistema: 'Sistema de Calidad OTAN y Polígonos Balísticos',
+    software: 'SAP Gestión de Calidad (QM), estaciones de inspección óptica, ultrasonido y rayos X (norma AQAP-2110) y polígonos de prueba.',
     alimenta: 'Sector 3 (Calidad)',
-    datos: 'Inspecciones dimensionales/ultrasonido/rayos X (FPY) y actas de aceptación estatal GQAR.',
+    resumen:
+      'Centraliza las inspecciones automáticas en línea para evitar reprocesos y documenta las pruebas balísticas oficiales exigidas antes de certificar y entregar cada lote.',
+    documentos:
+      'Reportes de piezas conformes al primer intento (FPY), fichas de reproceso y actas oficiales de aceptación estatal GQAR.',
+    kpis: 'First-Pass Yield — FPY (3.1) y Tasa de Rechazo o Demora de Lotes (3.2).',
   },
   {
-    sistema: 'EHS Platform (SAP EHS Management)',
-    modulos: 'SAP EHS + Control Horario SAP SuccessFactors',
+    sistema: 'SAP Gestión de Seguridad, Salud y Personal',
+    software: 'SAP Seguridad Industrial y Salud (EHS) integrado con gestión de turnos y personal (SAP SuccessFactors, norma ISO 45001).',
     alimenta: 'Sector 5 (Seguridad EHS)',
-    datos: 'Auditorías ATEX, hallazgos preventivos en SLA, horas-hombre trabajadas y accidentes ISO 45001.',
+    resumen:
+      'Monitorea hallazgos y riesgos preventivos en zonas con material energético a tres turnos, cruzando los partes médicos de accidentes con las horas-hombre reales trabajadas.',
+    documentos:
+      'Checklists en zonas con riesgo explosivo (ATEX), cierres de hallazgos en SLA, registro de horas-hombre y partes médicos de baja.',
+    kpis: 'Cierre Proactivo de Riesgos (5.1) e Índice de Frecuencia de Accidentes — LTIFR (5.2).',
   },
 ];
 
@@ -185,7 +258,7 @@ export function MethodologyView() {
         <div className="rhm-card rounded-xl p-5">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--accent-blue)]">
             <GitBranch className="h-4 w-4" />
-            Marco Conceptual (SRS §1.2 & Anexo §1.2)
+            Marco Conceptual · Ciclo Cerrado de Gestión
           </div>
           <h3 className="font-display mt-1 text-lg font-bold text-[var(--text-primary)]">
             Ciclo Cerrado de Gestión: KPI = Objetivo + Métrica + Meta + Decisión
@@ -218,14 +291,14 @@ export function MethodologyView() {
         <div className="rhm-card rounded-xl p-5">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--accent-blue)]">
             <Shield className="h-4 w-4" />
-            Contexto Estratégico Zeitenwende (SRS §2–3)
+            Contexto Estratégico · Zeitenwende
           </div>
           <h3 className="font-display mt-1 text-lg font-bold text-[var(--text-primary)]">
             Rheinmetall AG — De Vender a Producir a Escala Industrial
           </h3>
           <div className="mt-3 grid grid-cols-2 gap-2.5 text-xs">
             <div className="rounded border border-[var(--border-color)] bg-[var(--bg-elevated)] p-2.5">
-              <div className="text-[10px] uppercase text-[var(--text-muted)]">Expansión Backlog</div>
+              <div className="text-[10px] uppercase text-[var(--text-muted)]">Expansión Backlog (9M 2026)</div>
               <div className="font-mono-num font-bold text-[var(--text-primary)]">
                 {CORPORATE_CONTEXT.backlogPre2022} → {CORPORATE_CONTEXT.backlogQ3_2026}
               </div>
@@ -252,30 +325,77 @@ export function MethodologyView() {
         </div>
       </section>
 
-      {/* 3-Layer Hybrid Data Model (1_Fuentes_y_Metodologia) */}
+      {/* 2-Layer Complementary Hybrid Data Model */}
       <section className="rhm-card rounded-xl p-5">
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--accent-blue)]">
-          <Layers className="h-4 w-4" />
-          Transparencia Metodológica — Arquitectura de Modelo Híbrido (3 Capas)
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--accent-blue)]">
+            <Layers className="h-4 w-4" />
+            Transparencia Metodológica — Arquitectura Híbrida (2 Capas Complementarias)
+          </div>
+          <span
+            className="rounded px-2 py-0.5 text-[10px] font-semibold"
+            style={{ backgroundColor: 'var(--accent-blue-soft)', color: 'var(--accent-blue)' }}
+          >
+            Fidelidad financiera + realismo de planta
+          </span>
         </div>
-        <div className="mt-4 grid gap-4 lg:grid-cols-3">
-          {DATASET.fuentes_y_metodologia.map((layer) => (
+        <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">
+          {HYBRID_PRINCIPLES.principle}
+        </p>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          {HYBRID_PRINCIPLES.layers.map((layer) => (
             <div
-              key={layer.capa}
+              key={layer.title}
               className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-4 text-xs"
             >
-              <h4 className="font-bold text-[var(--text-primary)]">{layer.capa}</h4>
-              <p className="mt-1 font-semibold text-[var(--accent-blue)]">{layer.alcance}</p>
-              <div className="mt-2.5 space-y-2 text-[var(--text-secondary)]">
-                <p>
-                  <strong className="text-[var(--text-primary)]">Fuente oficial:</strong> {layer.fuente_oficial}
-                </p>
-                <p>
-                  <strong className="text-[var(--text-primary)]">Anclajes reales:</strong> {layer.valores_reales_verificables}
-                </p>
-                <p>
-                  <strong className="text-[var(--text-primary)]">Frontera sintética:</strong> {layer.donde_inicia_sintetico}
-                </p>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    {layer.level}
+                  </div>
+                  <h4 className="mt-0.5 text-sm font-bold text-[var(--text-primary)]">{layer.title}</h4>
+                </div>
+                <span
+                  className="rounded px-2 py-0.5 text-[10px] font-semibold"
+                  style={
+                    layer.accent === 'green'
+                      ? {
+                          backgroundColor: 'var(--status-green-bg)',
+                          color: 'var(--status-green-text)',
+                        }
+                      : {
+                          backgroundColor: 'var(--accent-blue-soft)',
+                          color: 'var(--accent-blue)',
+                        }
+                  }
+                >
+                  {layer.badge}
+                </span>
+              </div>
+              <dl className="mt-3 space-y-2 text-[var(--text-secondary)]">
+                <div>
+                  <dt className="font-semibold text-[var(--text-primary)]">De dónde sale:</dt>
+                  <dd>{layer.sources}</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-[var(--text-primary)]">Qué aporta:</dt>
+                  <dd>{layer.scope}</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-[var(--text-primary)]">Por qué se usa:</dt>
+                  <dd>{layer.justification}</dd>
+                </div>
+              </dl>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {layer.kpis.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded border border-[var(--border-color)] bg-[var(--bg-surface)] px-2 py-0.5 font-mono-num text-[10px] text-[var(--text-secondary)]"
+                  >
+                    {tag}
+                  </span>
+                ))}
               </div>
             </div>
           ))}
@@ -289,13 +409,42 @@ export function MethodologyView() {
         </div>
       </section>
 
-      {/* ETL Pipeline & Traceability Matrix (SRS Sec. 6.2 & Sec. 8) */}
+      {/* ETL Pipeline & Traceability Matrix */}
       <section className="grid gap-5 xl:grid-cols-2">
         <div className="rhm-card rounded-xl p-5">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--accent-blue)]">
             <Database className="h-4 w-4" />
-            Pipeline ETL y Sistemas Origen (SRS §6.2)
+            Integración en Vivo · Pipeline ETL del Piso de Fábrica al Tablero
           </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {ETL_FLOW_STEPS.map((st) => (
+              <div
+                key={st.step}
+                className="rounded-lg border p-2.5 text-[11px]"
+                style={
+                  st.accent
+                    ? {
+                        backgroundColor: 'var(--accent-blue-soft)',
+                        borderColor: 'var(--accent-blue)',
+                      }
+                    : {
+                        backgroundColor: 'var(--bg-elevated)',
+                        borderColor: 'var(--border-color)',
+                      }
+                }
+              >
+                <div className="font-mono-num text-[10px] font-bold text-[var(--accent-blue)]">
+                  {st.step}
+                </div>
+                <div className="font-semibold text-[var(--text-primary)]">{st.label}</div>
+                <div className="mt-0.5 text-[10px] leading-snug text-[var(--text-secondary)]">
+                  {st.desc}
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="mt-3 space-y-3">
             {ETL_PLATFORMS.map((p) => (
               <div
@@ -314,8 +463,18 @@ export function MethodologyView() {
                     {p.alimenta}
                   </span>
                 </div>
-                <div className="mt-1 font-mono-num text-[11px] text-[var(--accent-blue)]">{p.modulos}</div>
-                <p className="mt-1 text-[var(--text-secondary)]">{p.datos}</p>
+                <p className="mt-1.5 text-[var(--text-secondary)]">{p.resumen}</p>
+                <div className="mt-2 space-y-1 border-t pt-2 text-[11px] text-[var(--text-secondary)]" style={{ borderColor: 'var(--border-color)' }}>
+                  <div>
+                    <strong className="text-[var(--text-primary)]">Software y áreas:</strong> {p.software}
+                  </div>
+                  <div>
+                    <strong className="text-[var(--text-primary)]">Documentos reales:</strong> {p.documentos}
+                  </div>
+                  <div>
+                    <strong className="text-[var(--accent-blue)]">KPIs que alimenta:</strong> {p.kpis}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
