@@ -405,7 +405,7 @@ export function MethodologyView() {
           <strong className="text-[var(--text-primary)]">Nota de Reconciliación Contable (9M y FY 2026):</strong>{' '}
           La suma de Enero–Septiembre 2026 arroja exactamente <strong>€8.376,00M</strong> en Ventas,{' '}
           <strong>€19.100,00M</strong> en Pedidos (Book-to-Bill = <strong>2,28x</strong>) y{' '}
-          <strong>€1.340,16M</strong> en EBIT (Margen = <strong>16,00%</strong>). Para consolidaciones trimestrales y anuales de OEE y DOS, el motor sigue exactamente las fórmulas de la hoja <code>3_Trimestral_y_Anual_2026</code> del libro Excel (OEE FY = 80,92%; DOS FY = 80,3 d promedio mensual, frente a 81,23% y 79,9 d en cálculo agregado anual de la hoja 2).
+          <strong>€1.340,16M</strong> en EBIT (Margen = <strong>16,00%</strong>; Rheinmetall reporta €1.339M, diferencia de redondeo del margen). Los trimestres Q1–Q3 son una desagregación calibrada: no replican los Quarterly Statements individuales, pero su suma cuadra con el acumulado 9M auditado. El cierre Q4 es una proyección propia conservadora (FY €12.800M · 18,10%), por debajo del guidance ajustado del 05/11/2026 (~€13.200M · ~18,5%). Para consolidaciones trimestrales y anuales de OEE y DOS, el motor sigue exactamente las fórmulas de la hoja <code>3_Trimestral_y_Anual_2026</code> del libro Excel (OEE FY = 80,92%; DOS FY = 80,3 d promedio mensual, frente a 81,23% y 79,9 d en cálculo agregado anual de la hoja 2).
         </div>
       </section>
 
