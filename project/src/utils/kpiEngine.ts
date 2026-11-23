@@ -157,12 +157,12 @@ function getPeriodMeta(period: PeriodFilter): { label: string; origin: string } 
     return { label: 'Q4 2026 (Proyección Cierre)', origin: 'Proyección Calibrada Q4' };
   }
   if (isQuarterPeriod(period)) {
-    return { label: period, origin: 'Real Auditado / Híbrido Calibrado' };
+    return { label: period, origin: 'Desagregación Calibrada (suma 9M real)' };
   }
   const month = DATASET.serie_mensual_2026.find((m) => m.id === period);
   return {
     label: month?.mes ?? period,
-    origin: month?.tipo_dato ?? 'Real Auditado / Híbrido',
+    origin: month?.tipo_dato ?? 'Desagregación Calibrada',
   };
 }
 
@@ -789,9 +789,9 @@ export interface QuarterlyConsolidatedSummary {
 
 export function getQuarterlyAndAnnualSummary(): QuarterlyConsolidatedSummary[] {
   const periods: Array<{ filter: PeriodFilter; label: string; clasif: string }> = [
-    { filter: 'Q1 2026', label: 'Q1 2026', clasif: 'Real Auditado / Híbrido' },
-    { filter: 'Q2 2026', label: 'Q2 2026', clasif: 'Real Auditado / Híbrido' },
-    { filter: 'Q3 2026', label: 'Q3 2026', clasif: 'Real Auditado / Híbrido' },
+    { filter: 'Q1 2026', label: 'Q1 2026', clasif: 'Desagregación Calibrada' },
+    { filter: 'Q2 2026', label: 'Q2 2026', clasif: 'Desagregación Calibrada' },
+    { filter: 'Q3 2026', label: 'Q3 2026', clasif: 'Desagregación Calibrada' },
     { filter: '9M-2026', label: '9M 2026 (Acum.)', clasif: '100% Anclado Reporte 9M' },
     { filter: 'Q4 2026', label: 'Q4 2026 (Proy.)', clasif: 'Proyección Cierre 2026' },
     { filter: 'FY-2026', label: 'FY 2026 (Anual)', clasif: 'Consolidado Anual 2026' },
